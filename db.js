@@ -40,3 +40,32 @@ module.exports.addCard = (id) => {
   });
 }
 
+module.exports.removeCard = (id) => {
+  return checkDb().then(() => {
+    let cards = db.getCollection("cards");
+    cards.chain().find({ id }).remove();
+    return save();
+  });
+}
+
+module.exports.countCards = () => {
+  return checkDb().then(() => {
+    let cards = db.getCollection("cards");
+    return cards.count();
+  });
+}
+
+module.exports.findCard = (id) => {
+  return checkDb().then(() => {
+    let cards = db.getCollection("cards");
+    return cards.findOne({id});
+  });
+}
+
+
+module.exports.listCards = () => {
+  return checkDb().then(() => {
+    let cards = db.getCollection("cards");
+    return cards.find();
+  });
+}
