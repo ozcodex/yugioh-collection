@@ -22,12 +22,28 @@ function findCard(id) {
 	});
 }
 
-function mask(card){
-	return `${card.id} - ${card.name} [${card.rarity}]: $${card.average_price}`
+function mask(card) {
+	let amount = "";
+	if (card.amount && card.amount > 1) amount = `(${card.amount}x) `;
+	return `${amount}${card.id} - ${card.name} [${card.rarity}]: $${card.average_price}`;
 }
 
 function listCards() {
-	db.listCards().then((cards) => cards.map(mask).forEach(card => console.log(card)));
+	db.listCards().then((cards) =>
+		cards.map(mask).forEach((card) => console.log(card))
+	);
+}
+
+function countCards() {
+	db.listCards().then((cards) => {
+		console.log(
+			"Total amount of cards:" +
+				cards
+					.map((card) => card.amount || 1)
+					.reduce((prev, curr) => prev + curr)
+		);
+		console.log("Total registers:" + cards.length);
+	});
 }
 
 function fetchCard(id) {
@@ -37,7 +53,7 @@ function fetchCard(id) {
 function getTotalValue() {
 	db.listCards().then((cards) => {
 		let total = cards
-			.map((card) => card.average_price)
+			.map((card) => card.average_price * (card.amount || 1))
 			.reduce((prev, curr) => prev + curr)
 			.toFixed(2);
 		console.log("The total value of the collection is: $" + total);
@@ -49,6 +65,7 @@ options = [
 	"List Cards",
 	"View Card",
 	"Fetch Card",
+	"Count Cards",
 	"Total Value",
 	"Exit",
 ];
@@ -76,6 +93,8 @@ menu
 				return card_input.run().then(findCard);
 			case "Fetch Card":
 				return card_input.run().then(fetchCard);
+			case "Count Cards":
+				return countCards();
 			case "Total Value":
 				return getTotalValue();
 			case "Exit":
