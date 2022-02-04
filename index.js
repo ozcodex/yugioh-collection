@@ -8,7 +8,7 @@ function addCard(id) {
 			card.amount = card.amount + 1 || 2;
 			return db.updateCard(card).then(() => console.log(card));
 		}
-		return request.data(id).then((data) => {
+		return request.cardData(id).then((data) => {
 			db.addCard(id, data).then(() => {
 				console.log(data);
 			});
@@ -47,7 +47,7 @@ function countCards() {
 }
 
 function fetchCard(id) {
-	request.data(id).then(console.log);
+	request.cardData(id).then(console.log);
 }
 
 function getTotalValue() {

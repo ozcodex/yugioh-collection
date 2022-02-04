@@ -53,7 +53,7 @@ function capitalize(string) {
     .join(" ");
 }
 
-module.exports.data = (id) => {
+module.exports.cardData = (id) => {
   const data = {};
   return getPricingInfo(id)
     .then((pricing_info) => {
