@@ -68,3 +68,11 @@ module.exports.listCards = () => {
     return cards.find();
   });
 }
+
+module.exports.updateCard = (card) => {
+  return checkDb().then(() => {
+    let cards = db.getCollection("cards");
+    cards.update(card);
+    return save();
+  });
+}

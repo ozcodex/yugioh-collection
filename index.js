@@ -3,11 +3,22 @@ const request = require("./request");
 const { Input, Select } = require("enquirer");
 
 function addCard(id) {
-	console.log("loading card info...");
-	return request.data(id).then((data) => {
-		db.addCard(id, data).then(() => {
-			console.log(data);
+	db.findCard(id).then((card) => {
+		if (card !== null) {
+			card.amount = card.amount + 1 || 2;
+			return db.updateCard(card).then(() => console.log(card));
+		}
+		return request.data(id).then((data) => {
+			db.addCard(id, data).then(() => {
+				console.log(data);
+			});
 		});
+	});
+}
+
+function findCard(id) {
+	db.findCard(id).then((card) => {
+		console.log(card);
 	});
 }
 
@@ -17,7 +28,7 @@ function listCards() {
 	});
 }
 
-options = ["Add Card", "List Cards", "Exit"];
+options = ["Add Card", "List Cards", "View Card", "Exit"];
 
 const menu = new Select({
 	message: "Main Menu",
@@ -38,6 +49,8 @@ menu
 				return card_input.run().then(addCard);
 			case "List Cards":
 				return listCards();
+			case "View Card":
+				return card_input.run().then(findCard);
 			case "Exit":
 				return Promise.resolve("bye");
 		}
