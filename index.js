@@ -22,13 +22,36 @@ function findCard(id) {
 	});
 }
 
+function mask(card){
+	return `${card.id} - ${card.name} [${card.rarity}]: $${card.average_price}`
+}
+
 function listCards() {
+	db.listCards().then((cards) => cards.map(mask).forEach(card => console.log(card)));
+}
+
+function fetchCard(id) {
+	request.data(id).then(console.log);
+}
+
+function getTotalValue() {
 	db.listCards().then((cards) => {
-		console.log(cards);
+		let total = cards
+			.map((card) => card.average_price)
+			.reduce((prev, curr) => prev + curr)
+			.toFixed(2);
+		console.log("The total value of the collection is: $" + total);
 	});
 }
 
-options = ["Add Card", "List Cards", "View Card", "Exit"];
+options = [
+	"Add Card",
+	"List Cards",
+	"View Card",
+	"Fetch Card",
+	"Total Value",
+	"Exit",
+];
 
 const menu = new Select({
 	message: "Main Menu",
@@ -51,6 +74,10 @@ menu
 				return listCards();
 			case "View Card":
 				return card_input.run().then(findCard);
+			case "Fetch Card":
+				return card_input.run().then(fetchCard);
+			case "Total Value":
+				return getTotalValue();
 			case "Exit":
 				return Promise.resolve("bye");
 		}

@@ -21,25 +21,36 @@ function responseHandler(response, resolve, reject) {
 }
 
 function getPricingInfo(id) {
-  const path = "http://yugiohprices.com/api/price_for_print_tag/" + id;
+  const path = "http://yugiohprices.com/api/price_for_print_tag/" + changeLang(id);
   return new Promise((resolve, reject) => {
     http.get(path, (response) => responseHandler(response, resolve, reject));
   });
 }
 
 function getCardInfo(name) {
-  const path = "https://db.ygoprodeck.com/api/v7/cardinfo.php?name=" + name;
+  const path =
+    "https://db.ygoprodeck.com/api/v7/cardinfo.php?name=" + name;
   return new Promise((resolve, reject) => {
     https.get(path, (response) => responseHandler(response, resolve, reject));
   });
 }
 
+function changeLang(name) {
+  parts = name.split("-");
+  if (parts.length === 1) return name;
+  if (parts[1].length <= 3) return name;
+  parts[1] = "-EN" + parts[1].substring(2);
+  return parts.join('');
+}
+module.exports.changeLang = changeLang
+
 function capitalize(string) {
   if (!string) return string;
-  return string.toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return string
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 module.exports.data = (id) => {
@@ -62,7 +73,7 @@ module.exports.data = (id) => {
       data.level = card_info.data[0].level;
       data.attribute = capitalize(card_info.data[0].attribute);
       data.archetype = card_info.data[0].archetype;
-      data.image_url = card_info.data[0].card_images[0]?.image_url
+      data.image_url = card_info.data[0].card_images[0]?.image_url;
 
       return data;
     });
