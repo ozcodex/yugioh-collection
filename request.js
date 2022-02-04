@@ -35,7 +35,11 @@ function getCardInfo(name) {
 }
 
 function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase;
+  if (!string) return string;
+  return string.toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 module.exports.data = (id) => {
@@ -56,7 +60,7 @@ module.exports.data = (id) => {
       data.atk = card_info.data[0].atk;
       data.def = card_info.data[0].def;
       data.level = card_info.data[0].level;
-      data.attribute = card_info.data[0].attribute;
+      data.attribute = capitalize(card_info.data[0].attribute);
       data.archetype = card_info.data[0].archetype;
       data.image_url = card_info.data[0].card_images[0]?.image_url
 

@@ -32,10 +32,10 @@ function checkDb() {
 
 //function export
 
-module.exports.addCard = (id) => {
+module.exports.addCard = (id,props) => {
   return checkDb().then(() => {
     let cards = db.getCollection("cards");
-    cards.insert({ id });
+    cards.insert({ id, ...props });
     return save();
   });
 }
@@ -61,7 +61,6 @@ module.exports.findCard = (id) => {
     return cards.findOne({id});
   });
 }
-
 
 module.exports.listCards = () => {
   return checkDb().then(() => {
