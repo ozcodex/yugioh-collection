@@ -35,7 +35,7 @@ function checkDb() {
 module.exports.addCard = (id,props) => {
   return checkDb().then(() => {
     let cards = db.getCollection("cards");
-    cards.insert({ id, ...props });
+    cards.insert({ id, amount: 1, ...props });
     return save();
   });
 }
