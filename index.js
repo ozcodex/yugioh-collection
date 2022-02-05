@@ -1,6 +1,6 @@
 const db = require("./db");
 const request = require("./request");
-const { prompt, Input, Select, AutoComplete, Snippet } = require("enquirer");
+const { prompt } = require("enquirer");
 
 function addCard(id) {
 	db.findCard(id).then((card) => {
@@ -22,6 +22,12 @@ function printCard(id) {
 	});
 }
 
+function deleteCard(id) {
+	db.removeCard(id).then((card) => {
+		console.log("Card Deleted!");
+	});
+}
+
 function mask(card) {
 	let amount = "";
 	if (card.amount && card.amount > 1) amount = `(${card.amount}x) `;
@@ -38,26 +44,9 @@ function getCardsId() {
 	return db.listCards().then((cards) => cards.map((card) => card.id));
 }
 
-function sanitizeCard(card) {
-	Object.keys(card).forEach((key) => {
-		if (card[key] === undefined) {
-			delete card[key];
-		}
-	});
-	delete card["$loki"];
-	delete card["meta"];
-	return card;
-}
-
 function propsToString(object) {
 	for (prop in object) object[prop] = String(object[prop]);
 	return object;
-}
-
-function editCard(id, new_values) {
-	db.findCard(id)
-		.then((card) => updateCard({ ...card, ...new_values }))
-		.then(() => printCard(id));
 }
 
 function countCards() {
@@ -92,7 +81,7 @@ options = [
 	"Add Card",
 	"List Cards",
 	"View Card",
-	"Edit Card",
+	"Delete Card",
 	"Fetch Card",
 	"Count Cards",
 	"Total Value",
@@ -122,23 +111,6 @@ const card_selector = {
 	choices: getCardsId(),
 };
 
-function editorTemplateGenerator(card) {
-	let template = `id: ${card.id}\n`;
-	delete card["id"];
-	template += Object.keys(sanitizeCard(card))
-		.map((key) => `${key}: #{${key}}`)
-		.join("\n");
-	return template;
-}
-
-const card_editor = {
-	type: "snippet",
-	name: "new_values",
-	message: "Fill the properties of the card",
-	template: "",
-	result: (answer) => answer.values,
-};
-
 prompt(menu)
 	.then((answer) => {
 		switch (answer.option) {
@@ -148,17 +120,8 @@ prompt(menu)
 				return listCards();
 			case "View Card":
 				return prompt(card_selector).then((input) => printCard(input.id));
-			case "Edit Card":
-				return prompt(card_selector)
-					.then((input) => db.findCard(input.id))
-					.then((card) =>
-						prompt({
-							...card_editor,
-							values: propsToString(card),
-							template: editorTemplateGenerator(card),
-						}))
-					//.then(prompt(confirmation))
-					.then(console.log); //.then((card) => editCard(card.id, card.new_values));
+			case "Delete Card":
+				return prompt(card_selector).then((input) => deleteCard(input.id));
 			case "Fetch Card":
 				return card_input.run().then(fetchCard);
 			case "Count Cards":
