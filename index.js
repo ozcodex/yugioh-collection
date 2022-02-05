@@ -79,6 +79,7 @@ function getTotalValue() {
 
 options = [
 	"Add Card",
+	"Set Prefix",
 	"List Cards",
 	"View Card",
 	"Delete Card",
@@ -95,10 +96,20 @@ const menu = {
 	choices: options,
 };
 
+let prefix = '';
+
 const card_input = {
 	type: "input",
 	name: "id",
 	message: "Write the card number",
+	format: (input) => prefix+input.toUpperCase(),
+	result: (input) => prefix+input.toUpperCase(),
+};
+
+const prefix_input = {
+	type: "input",
+	name: "prefix",
+	message: "Write the prefix",
 	format: (input) => input.toUpperCase(),
 	result: (input) => input.toUpperCase(),
 };
@@ -119,6 +130,11 @@ async function mainLoop() {
 				switch (answer.option) {
 					case "Add Card":
 						return prompt(card_input).then((input) => addCard(input.id));
+					case "Set Prefix":
+						return prompt(prefix_input).then(input => {
+							prefix = input.prefix
+							console.log("prefix set!");
+						})
 					case "List Cards":
 						return listCards();
 					case "View Card":
