@@ -1,6 +1,6 @@
 const db = require("./db");
 const request = require("./request");
-const { Input, Select } = require("enquirer");
+const { prompt, Input, Select, AutoComplete, Snippet } = require("enquirer");
 
 function addCard(id) {
 	db.findCard(id).then((card) => {
@@ -16,7 +16,7 @@ function addCard(id) {
 	});
 }
 
-function findCard(id) {
+function printCard(id) {
 	db.findCard(id).then((card) => {
 		console.log(card);
 	});
@@ -32,6 +32,16 @@ function listCards() {
 	db.listCards().then((cards) =>
 		cards.map(mask).forEach((card) => console.log(card))
 	);
+}
+
+function getCardsId() {
+	return db.listCards().then((cards) => cards.map((card) => card.id));
+}
+
+function editCard(id, new_values) {
+	db.findCard(id)
+		.then((card) => updateCard({ ...card, ...new_values }))
+		.then(() => printCard(id));
 }
 
 function countCards() {
@@ -60,37 +70,69 @@ function getTotalValue() {
 	});
 }
 
+// CLI functions
+
 options = [
 	"Add Card",
 	"List Cards",
 	"View Card",
+	"Edit Card",
 	"Fetch Card",
 	"Count Cards",
 	"Total Value",
 	"Exit",
 ];
 
-const menu = new Select({
+const menu = {
+	type: "select",
+	name: "option",
 	message: "Main Menu",
 	choices: options,
-});
+};
 
-const card_input = new Input({
+const card_input = {
+	type: "input",
+	name: "id",
 	message: "Write the card number",
 	format: (input) => input.toUpperCase(),
 	result: (input) => input.toUpperCase(),
-});
+};
 
-menu
-	.run()
+const card_selector = {
+	type: "autocomplete",
+	name: "id",
+	message: "Choose the card number",
+	limit: 5,
+	choices: getCardsId(),
+};
+
+const card_editor = {
+	type: "snippet",
+	name: "new_values",
+	required: true,
+	inital: 'amount',
+	message: "Fill the properties of the card",
+	fields: [
+		{ name: "amount", validate: (value) => Number.isInteger(parseInt(value)), result: value => parseInt(value) },
+	],
+	template: `id: \${id}\namount: \${amount}`,
+	result: (answer) => answer,
+};
+
+prompt(menu)
 	.then((answer) => {
-		switch (answer) {
+		switch (answer.option) {
 			case "Add Card":
-				return card_input.run().then(addCard);
+				return prompt(card_input).then((input) => addCard(input.id));
 			case "List Cards":
 				return listCards();
 			case "View Card":
-				return card_input.run().then(findCard);
+				return prompt(card_selector).then((input) => printCard(input.id));
+			case "Edit Card":
+				return prompt(card_selector)
+					.then((input) => db.findCard(input.id))
+					.then((card) => prompt({ ...card_editor, values: card }))
+					.then(console.log); //.then((card) => editCard(card.id, card.new_values));
 			case "Fetch Card":
 				return card_input.run().then(fetchCard);
 			case "Count Cards":
