@@ -23,7 +23,7 @@ function addMissingCard(id) {
 			return db.updateCard(card).then(() => console.log(card));
 		}
 		return db.addCard(id, { missing: true }).then(() => {
-			console.log(data);
+			console.log("Card Added!");
 		});
 	});
 }
