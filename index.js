@@ -80,7 +80,7 @@ function fetchCard(id) {
 function getTotalValue() {
 	return db.listCards().then((cards) => {
 		let total = cards
-			.map((card) => card.average_price * (card.amount || 1))
+			.map((card) => (card.average_price || 1) * (card.amount || 1))
 			.reduce((prev, curr) => prev + curr)
 			.toFixed(2);
 		console.log("The total value of the collection is: $" + total);

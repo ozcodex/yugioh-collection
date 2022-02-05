@@ -21,4 +21,7 @@ features to implement:
 - amount of cards by name
 - deck builder
 - edit card
+- update cards from internet
+- check for missing cards
+- fix list to show missing cards
 - graphical interface
