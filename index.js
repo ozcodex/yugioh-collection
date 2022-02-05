@@ -16,6 +16,18 @@ function addCard(id) {
 	});
 }
 
+function addMissingCard(id) {
+	return db.findCard(id).then((card) => {
+		if (card !== null) {
+			card.amount = card.amount + 1 || 2;
+			return db.updateCard(card).then(() => console.log(card));
+		}
+		return db.addCard(id, { missing: true }).then(() => {
+			console.log(data);
+		});
+	});
+}
+
 function printCard(id) {
 	return db.findCard(id).then((card) => {
 		console.log(card);
@@ -35,9 +47,9 @@ function mask(card) {
 }
 
 function listCards() {
-	return db.listCards().then((cards) =>
-		cards.map(mask).forEach((card) => console.log(card))
-	);
+	return db
+		.listCards()
+		.then((cards) => cards.map(mask).forEach((card) => console.log(card)));
 }
 
 function getCardsId() {
@@ -86,6 +98,7 @@ options = [
 	"Fetch Card",
 	"Count Cards",
 	"Total Value",
+	"Add Missing Card",
 	"Exit",
 ];
 
@@ -96,14 +109,14 @@ const menu = {
 	choices: options,
 };
 
-let prefix = '';
+let prefix = "";
 
 const card_input = {
 	type: "input",
 	name: "id",
 	message: "Write the card number",
-	format: (input) => prefix+input.toUpperCase(),
-	result: (input) => prefix+input.toUpperCase(),
+	format: (input) => prefix + input.toUpperCase(),
+	result: (input) => prefix + input.toUpperCase(),
 };
 
 const prefix_input = {
@@ -126,15 +139,15 @@ async function mainLoop() {
 	do {
 		status = await prompt(menu)
 			.then((answer) => {
-				console.log('\033[2J');
+				console.log("\033[2J");
 				switch (answer.option) {
 					case "Add Card":
 						return prompt(card_input).then((input) => addCard(input.id));
 					case "Set Prefix":
-						return prompt(prefix_input).then(input => {
-							prefix = input.prefix
+						return prompt(prefix_input).then((input) => {
+							prefix = input.prefix;
 							console.log("prefix set!");
-						})
+						});
 					case "List Cards":
 						return listCards();
 					case "View Card":
@@ -147,6 +160,8 @@ async function mainLoop() {
 						return countCards();
 					case "Total Value":
 						return getTotalValue();
+					case "Add Missing Card":
+						return prompt(card_input).then((input) => addMissingCard(input.id));
 					case "Exit":
 						return Promise.resolve("stop");
 				}
@@ -155,4 +170,4 @@ async function mainLoop() {
 	} while (status != "stop");
 }
 
-mainLoop()
+mainLoop();
