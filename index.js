@@ -38,6 +38,22 @@ function getCardsId() {
 	return db.listCards().then((cards) => cards.map((card) => card.id));
 }
 
+function sanitizeCard(card) {
+	Object.keys(card).forEach((key) => {
+		if (card[key] === undefined) {
+			delete card[key];
+		}
+	});
+	delete card["$loki"];
+	delete card["meta"];
+	return card;
+}
+
+function propsToString(object) {
+	for (prop in object) object[prop] = String(object[prop]);
+	return object;
+}
+
 function editCard(id, new_values) {
 	db.findCard(id)
 		.then((card) => updateCard({ ...card, ...new_values }))
@@ -106,17 +122,21 @@ const card_selector = {
 	choices: getCardsId(),
 };
 
+function editorTemplateGenerator(card) {
+	let template = `id: ${card.id}\n`;
+	delete card["id"];
+	template += Object.keys(sanitizeCard(card))
+		.map((key) => `${key}: #{${key}}`)
+		.join("\n");
+	return template;
+}
+
 const card_editor = {
 	type: "snippet",
 	name: "new_values",
-	required: true,
-	inital: 'amount',
 	message: "Fill the properties of the card",
-	fields: [
-		{ name: "amount", validate: (value) => Number.isInteger(parseInt(value)), result: value => parseInt(value) },
-	],
-	template: `id: \${id}\namount: \${amount}`,
-	result: (answer) => answer,
+	template: "",
+	result: (answer) => answer.values,
 };
 
 prompt(menu)
@@ -131,7 +151,13 @@ prompt(menu)
 			case "Edit Card":
 				return prompt(card_selector)
 					.then((input) => db.findCard(input.id))
-					.then((card) => prompt({ ...card_editor, values: card }))
+					.then((card) =>
+						prompt({
+							...card_editor,
+							values: propsToString(card),
+							template: editorTemplateGenerator(card),
+						}))
+					//.then(prompt(confirmation))
 					.then(console.log); //.then((card) => editCard(card.id, card.new_values));
 			case "Fetch Card":
 				return card_input.run().then(fetchCard);
