@@ -111,25 +111,32 @@ const card_selector = {
 	choices: getCardsId(),
 };
 
-prompt(menu)
-	.then((answer) => {
-		switch (answer.option) {
-			case "Add Card":
-				return prompt(card_input).then((input) => addCard(input.id));
-			case "List Cards":
-				return listCards();
-			case "View Card":
-				return prompt(card_selector).then((input) => printCard(input.id));
-			case "Delete Card":
-				return prompt(card_selector).then((input) => deleteCard(input.id));
-			case "Fetch Card":
-				return card_input.run().then(fetchCard);
-			case "Count Cards":
-				return countCards();
-			case "Total Value":
-				return getTotalValue();
-			case "Exit":
-				return Promise.resolve("bye");
-		}
-	})
-	.catch(console.error);
+async function mainLoop() {
+	do {
+		status = await prompt(menu)
+			.then((answer) => {
+				console.log('\033[2J');
+				switch (answer.option) {
+					case "Add Card":
+						return prompt(card_input).then((input) => addCard(input.id));
+					case "List Cards":
+						return listCards();
+					case "View Card":
+						return prompt(card_selector).then((input) => printCard(input.id));
+					case "Delete Card":
+						return prompt(card_selector).then((input) => deleteCard(input.id));
+					case "Fetch Card":
+						return card_input.run().then(fetchCard);
+					case "Count Cards":
+						return countCards();
+					case "Total Value":
+						return getTotalValue();
+					case "Exit":
+						return Promise.resolve("stop");
+				}
+			})
+			.catch(console.error);
+	} while (status != "stop");
+}
+
+mainLoop()
