@@ -3,7 +3,7 @@ const request = require("./request");
 const { prompt } = require("enquirer");
 
 function addCard(id) {
-	db.findCard(id).then((card) => {
+	return db.findCard(id).then((card) => {
 		if (card !== null) {
 			card.amount = card.amount + 1 || 2;
 			return db.updateCard(card).then(() => console.log(card));
@@ -17,13 +17,13 @@ function addCard(id) {
 }
 
 function printCard(id) {
-	db.findCard(id).then((card) => {
+	return db.findCard(id).then((card) => {
 		console.log(card);
 	});
 }
 
 function deleteCard(id) {
-	db.removeCard(id).then((card) => {
+	return db.removeCard(id).then((card) => {
 		console.log("Card Deleted!");
 	});
 }
@@ -35,7 +35,7 @@ function mask(card) {
 }
 
 function listCards() {
-	db.listCards().then((cards) =>
+	return db.listCards().then((cards) =>
 		cards.map(mask).forEach((card) => console.log(card))
 	);
 }
@@ -50,7 +50,7 @@ function propsToString(object) {
 }
 
 function countCards() {
-	db.listCards().then((cards) => {
+	return db.listCards().then((cards) => {
 		console.log(
 			"Total amount of cards:" +
 				cards
@@ -62,11 +62,11 @@ function countCards() {
 }
 
 function fetchCard(id) {
-	request.cardData(id).then(console.log);
+	return request.cardData(id).then(console.log);
 }
 
 function getTotalValue() {
-	db.listCards().then((cards) => {
+	return db.listCards().then((cards) => {
 		let total = cards
 			.map((card) => card.average_price * (card.amount || 1))
 			.reduce((prev, curr) => prev + curr)
@@ -126,7 +126,7 @@ async function mainLoop() {
 					case "Delete Card":
 						return prompt(card_selector).then((input) => deleteCard(input.id));
 					case "Fetch Card":
-						return card_input.run().then(fetchCard);
+						return prompt(card_input).then((input) => fetchCard(input.id));
 					case "Count Cards":
 						return countCards();
 					case "Total Value":
