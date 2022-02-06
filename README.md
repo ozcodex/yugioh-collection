@@ -13,7 +13,9 @@ features to implement:
 - sort list by price, date or amount
 - change list for top 10
 - convert count in stadistics
+- add stadistics about archetype, card type and archetype
 - read decks from text file
+- add a price sum by ranges
 - search by name
 - sets info in db
 - % completed of sets
