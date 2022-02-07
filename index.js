@@ -1,6 +1,7 @@
 const db = require("./db");
 const request = require("./request");
 const { prompt } = require("enquirer");
+const fs = require('fs')
 
 function addCard(id) {
 	return db.findCard(id).then((card) => {
@@ -52,6 +53,16 @@ function listCards() {
 		.then((cards) => cards.map(mask).forEach((card) => console.log(card)));
 }
 
+function exportCollection() {
+	return db
+		.listCards()
+		.then((cards) => {
+      let out = cards.map(card => (card.id+'\n').repeat(card.amount|1)).join('')
+      fs.writeFileSync('out.txt',out);
+      console.log("done")
+    });
+}
+
 function getCardsId() {
 	return db.listCards().then((cards) => cards.map((card) => card.id));
 }
@@ -99,6 +110,7 @@ options = [
 	"Count Cards",
 	"Total Value",
 	"Add Missing Card",
+  "Export Collection",
 	"Exit",
 ];
 
@@ -162,6 +174,8 @@ async function mainLoop() {
 						return getTotalValue();
 					case "Add Missing Card":
 						return prompt(card_input).then((input) => addMissingCard(input.id));
+          case "Export Collection":
+            return exportCollection();
 					case "Exit":
 						return Promise.resolve("stop");
 				}
