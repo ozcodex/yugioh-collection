@@ -27,3 +27,9 @@ features to implement:
 - check for missing cards
 - fix list to show missing cards
 - graphical interface
+
+# source of data
+the json files `all_cards.json` and `card_sets.json` are obtained
+from this urls respectively:
+- https://db.ygoprodeck.com/api/v7/cardinfo.php
+- https://db.ygoprodeck.com/api/v7/cardsets.php
