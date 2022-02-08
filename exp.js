@@ -70,7 +70,7 @@ function addCard(id) {
     };
     return db[id];
   }
-  db[id] = { id, missing: true };
+  db[id] = { id:parseId, amount:1 ,missing: true,lang:getLang(id) };
   return db[id];
 }
 
@@ -121,11 +121,12 @@ Yugioh Collection Manager
 switch(args[0]){
   case '-l':
     for(id in db){
-      console.info(`${id}:\t (x${db[id].amount}) ${db[id].name}`)
+      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||"Missing Name"}`)
     }
     break;
   case '-a':
     let filename = args[1];
-    if (!filename) return console.error("wrong filename")
-    loadFile(filename)
+    if (fs.existsSync(filename)) loadFile(filename)
+    else console.error("bad file")
+    break;
 }
