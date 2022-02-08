@@ -12,21 +12,17 @@ features to implement:
 - code refactor
 - delete card
 - sort list by price, date or amount
-- change list for top 10
-- convert count in stadistics
+- top 10 by price, amount,
 - add stadistics about archetype, card type and archetype
 - read decks from text file
 - add a price sum by ranges
-- search by name
-- sets info in db
 - % completed of sets
 - cards of each language
-- amount of cards by name
+- cards of each rarity
 - deck builder
 - edit card
-- update cards from internet
 - check for missing cards
-- fix list to show missing cards
+- fix search to show missing cards
 - graphical interface
 
 # source of data

@@ -3,6 +3,7 @@
 // offline and using only node core libraries, without installing anything.
 const fs = require("fs");
 const all_cards = require("./all_cards.json").data;
+const all_sets = require("./all_sets.json");
 const db = require("./db.json");
 
 function parseId(id) {
@@ -147,7 +148,7 @@ const args = process.argv.slice(2);
 switch (args[0]) {
   case "-l":
     for (id in db) {
-      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name || ""} $${db[id].price}`);
+      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name || "-"} $${db[id].price}`);
     }
     break;
   case "-i":
@@ -158,6 +159,7 @@ switch (args[0]) {
       console.info(`Cards with unique name: ${countCardsBy('name')}`)
       console.info(`Total sets in collection: ${countCardsBy('set_id')}`)
       console.info(`Total all cards: ${all_cards.length}`)
+      console.info(`Total all sets: ${all_sets.length}`)
       console.info(`Collection status: ${collectionStatus()}%`)
   break;
   case '-c':
@@ -175,7 +177,7 @@ switch (args[0]) {
     break;
   case "-s":
     searchCard(args[1], args[2], args[3] == "true").forEach((card) =>
-      console.info(`  ${id}\t (x${card.amount}) ${card.name || ""}`)
+      console.info(`  ${card.id}\t (x${card.amount}) ${card.name || ""}`)
     );
     break;
   case "-a":
