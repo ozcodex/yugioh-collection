@@ -19,6 +19,18 @@ function getLang(id) {
   else return parts[1].substr(0, 2);
 }
 
+function averagePrice(prices) {
+  let price = Object.values(prices);
+  return (
+    price.map((p) => parseFloat(p)).reduce((a, b) => a + b) / price.length
+  ).toFixed(2);
+}
+
+function lowestPrice(prices) {
+  let price = Object.values(prices);
+  return Math.min(...price)
+}
+
 function cardInfo(id) {
   let p_id = parseId(id);
   const card = all_cards.filter((card) =>
@@ -38,7 +50,8 @@ function cardInfo(id) {
     attribute: card.attribute,
     rarity: set?.set_rarity,
     set_name: set?.set_name,
-    price: set?.set_price,
+    price: averagePrice(card.card_prices[0]),
+    price_low: lowestPrice(card.card_prices[0]),
     image: card.card_images[0].id,
   };
 }
@@ -49,7 +62,7 @@ function readInputFile(filename) {
     .toString()
     .split("\n")
     .map((line) => line.replace(/[^ -~]+/g, ""))
-    .filter(line => line != '');
+    .filter((line) => line != "");
 }
 
 function saveDB() {
@@ -70,7 +83,7 @@ function addCard(id) {
     };
     return db[id];
   }
-  db[id] = { id:parseId, amount:1 ,missing: true,lang:getLang(id) };
+  db[id] = { id: parseId, amount: 1, missing: true, lang: getLang(id), price: 0, price_low: 0 };
   return db[id];
 }
 
@@ -82,8 +95,14 @@ function searchCard(property, value, strict = false) {
       if (strict) {
         if (card[property] == value) result.push(card);
       } else {
-        let regex = /[\W_ ]/g
-        if (card[property].toString().toLowerCase().replace(regex,'').includes(value.toString().toLowerCase().replace(regex,'')))
+        let regex = /[\W_ ]/g;
+        if (
+          card[property]
+            .toString()
+            .toLowerCase()
+            .replace(regex, "")
+            .includes(value.toString().toLowerCase().replace(regex, ""))
+        )
           result.push(card);
       }
     }
@@ -91,21 +110,32 @@ function searchCard(property, value, strict = false) {
   return result;
 }
 
-function loadFile(name){
+function totalValue(){
+  return Object.values(db).map(card=> (card.price||0)*card.amount).reduce((a,b) => a+b).toFixed(2)
+}
+
+function totalLowValue(){
+  return Object.values(db).map(card=> (card.price_low||0)*card.amount).reduce((a,b) => a+b).toFixed(2)
+}
+
+function loadFile(name) {
   readInputFile(name).forEach((id) => addCard(id));
   saveDB();
 }
 
 //========================//
 
-const args = process.argv.slice(2)
-if (args.length == 0 || args[0] == '-h')
+const args = process.argv.slice(2);
+if (args.length == 0 || args[0] == "-h")
   console.info(`
 Yugioh Collection Manager
 
   -l 
     list all cards in collection.
 
+  -i
+    shows relevant info about current collection
+    
   -s property value [strict]
     search the cards containing the value in the property,
     stricts is a optional boolean and indicates if strict
@@ -114,25 +144,38 @@ Yugioh Collection Manager
   -a filename
     adds the ids indicated in the filename to database
 
+  -D
+    Delete all registers in database
+
   -h
     shows this help
-`)
+`);
 
-switch(args[0]){
-  case '-l':
-    for(id in db){
-      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||''}`)
+switch (args[0]) {
+  case "-l":
+    for (id in db) {
+      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name || ""} $${db[id].price}`);
     }
     break;
-  case '-s':
-      searchCard(args[1],args[2],args[3]=='true')
-      .forEach(card => console.info(`  ${id}\t (x${card.amount}) ${card.name||''}`))
+  case "-i":
+      console.info(`Total value: $${totalValue()}`)
+      console.info(`Total low value: $${totalLowValue()}`)
     break;
-  case '-a':
+  case "-s":
+    searchCard(args[1], args[2], args[3] == "true").forEach((card) =>
+      console.info(`  ${id}\t (x${card.amount}) ${card.name || ""}`)
+    );
+    break;
+  case "-a":
     let filename = args[1];
-    if (fs.existsSync(filename)) loadFile(filename)
-    else console.error("bad file")
+    if (fs.existsSync(filename)) loadFile(filename);
+    else console.error("bad file");
+    break;
+  case "-D":
+    for (id in db) delete db[id];
+    saveDB();
+    console.info("Done!");
     break;
   default:
-    console.info(`Invalid option, use -h to for more information`)
+    console.info(`Invalid option, use -h to for more information`);
 }
