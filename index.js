@@ -51,7 +51,7 @@ function cardInfo(id) {
     rarity: set?.set_rarity,
     set_name: set?.set_name,
     set_id: id.split('-')[0],
-    price: averagePrice(card.card_prices[0]),
+    price: set?.set_price,
     price_low: lowestPrice(card.card_prices[0]),
     image: card.card_images[0].id,
   };
@@ -166,7 +166,7 @@ switch (args[0]) {
       let card = db[card_id]
       for(key in card){
         value = card[key]
-        separator = (key.length >= 8)? '\t':'\t\t'
+        separator = (key.length >= 7)? '\t':'\t\t'
         if (value) console.info(`${key}:${separator}${value}`)
       }
     }else{
