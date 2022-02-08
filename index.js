@@ -1,44 +1,44 @@
 // this is an experiment
 // the idea behind this experiment is to manage the card collection
 // offline and using only node core libraries, without installing anything.
-const fs = require("fs");
-const all_cards = require("./all_cards.json").data;
-const all_sets = require("./all_sets.json");
-const db = require("./db.json");
+const fs = require('fs');
+const all_cards = require('./all_cards.json').data;
+const all_sets = require('./all_sets.json');
+const db = require('./db.json');
 
 function parseId(id) {
-  parts = id.split("-");
+  parts = id.split('-');
   if (parts.length === 1) return id;
   if (parts[1].length <= 3) return id;
-  parts[1] = "-EN" + parts[1].substring(2);
-  return parts.join("");
+  parts[1] = '-EN' + parts[1].substring(2);
+  return parts.join('');
 }
 
 function getLang(id) {
-  parts = id.split("-");
-  if (parts.length === 1 || parts[1].length <= 3) return "EN";
+  parts = id.split('-');
+  if (parts.length === 1 || parts[1].length <= 3) return 'EN';
   else return parts[1].substr(0, 2);
 }
 
 function averagePrice(prices) {
   let price = Object.values(prices);
   return (
-    price.map((p) => parseFloat(p)).reduce((a, b) => a + b) / price.length
+    price.map(p => parseFloat(p)).reduce((a, b) => a + b) / price.length
   ).toFixed(2);
 }
 
 function lowestPrice(prices) {
   let price = Object.values(prices);
-  return Math.min(...price)
+  return Math.min(...price);
 }
 
 function cardInfo(id) {
   let p_id = parseId(id);
-  const card = all_cards.filter((card) =>
-    card.card_sets?.some((set) => set.set_code === p_id)
+  const card = all_cards.filter(card =>
+    card.card_sets?.some(set => set.set_code === p_id)
   )[0];
   if (!card) return null;
-  const set = card.card_sets.filter((set) => set.set_code === p_id)[0];
+  const set = card.card_sets.filter(set => set.set_code === p_id)[0];
   return {
     id: id,
     name: card.name,
@@ -62,13 +62,13 @@ function readInputFile(filename) {
   return fs
     .readFileSync(filename)
     .toString()
-    .split("\n")
-    .map((line) => line.replace(/[^ -~]+/g, ""))
-    .filter((line) => line != "");
+    .split('\n')
+    .map(line => line.replace(/[^ -~]+/g, ''))
+    .filter(line => line != '');
 }
 
 function saveDB() {
-  fs.writeFileSync("db.json", JSON.stringify(db));
+  fs.writeFileSync('db.json', JSON.stringify(db));
 }
 
 function addCard(id) {
@@ -85,7 +85,14 @@ function addCard(id) {
     };
     return db[id];
   }
-  db[id] = { id: parseId, amount: 1, missing: true, lang: getLang(id), price: 0, price_low: 0 };
+  db[id] = {
+    id: parseId,
+    amount: 1,
+    missing: true,
+    lang: getLang(id),
+    price: 0,
+    price_low: 0,
+  };
   return db[id];
 }
 
@@ -102,8 +109,8 @@ function searchCard(property, value, strict = false) {
           card[property]
             .toString()
             .toLowerCase()
-            .replace(regex, "")
-            .includes(value.toString().toLowerCase().replace(regex, ""))
+            .replace(regex, '')
+            .includes(value.toString().toLowerCase().replace(regex, ''))
         )
           result.push(card);
       }
@@ -112,32 +119,47 @@ function searchCard(property, value, strict = false) {
   return result;
 }
 
-function additor(a,b){
-  return a + b
+function exportCards(filename) {
+  fs.writeFileSync(
+    'cards.txt',
+    db.map(card => card.id)
+  );
 }
 
-function totalValue(){
-  return Object.values(db).map(card=> (card.price||0)*card.amount).reduce(additor).toFixed(2)
+function additor(a, b) {
+  return a + b;
 }
 
-function totalLowValue(){
-  return Object.values(db).map(card=> (card.price_low||0)*card.amount).reduce(additor).toFixed(2)
+function totalValue() {
+  return Object.values(db)
+    .map(card => (card.price || 0) * card.amount)
+    .reduce(additor)
+    .toFixed(2);
 }
 
-function countCards(){
-  return Object.values(db).map(card => card.amount).reduce(additor)
+function totalLowValue() {
+  return Object.values(db)
+    .map(card => (card.price_low || 0) * card.amount)
+    .reduce(additor)
+    .toFixed(2);
 }
 
-function countCardsBy(prop){
-  return [...new Set(Object.values(db).map(card => card[prop]))].length
+function countCards() {
+  return Object.values(db)
+    .map(card => card.amount)
+    .reduce(additor);
 }
 
-function collectionStatus(){
-  return (100*countCardsBy('name')/all_cards.length).toFixed(2);
+function countCardsBy(prop) {
+  return [...new Set(Object.values(db).map(card => card[prop]))].length;
+}
+
+function collectionStatus() {
+  return ((100 * countCardsBy('name')) / all_cards.length).toFixed(2);
 }
 
 function loadFile(name) {
-  readInputFile(name).forEach((id) => addCard(id));
+  readInputFile(name).forEach(id => addCard(id));
   saveDB();
 }
 
@@ -146,78 +168,84 @@ function loadFile(name) {
 const args = process.argv.slice(2);
 
 switch (args[0]) {
-  case "-l":
+  case '-l':
     for (id in db) {
-      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name || "-"} $${db[id].price}`);
+      console.info(
+        `  ${id}\t (x${db[id].amount}) ${db[id].name || '-'} $${db[id].price}`
+      );
     }
     break;
-  case "-i":
-      console.info(`Total average value: $${totalValue()}`)
-      console.info(`Total low value: $${totalLowValue()}`)
-      console.info(`Total amount of cards: ${countCards()}`)
-      console.info(`Cards with unique id: ${Object.keys(db).length}`)
-      console.info(`Cards with unique name: ${countCardsBy('name')}`)
-      console.info(`Total sets in collection: ${countCardsBy('set_id')}`)
-      console.info(`Total all cards: ${all_cards.length}`)
-      console.info(`Total all sets: ${all_sets.length}`)
-      console.info(`Collection status: ${collectionStatus()}%`)
-  break;
+  case '-i':
+    console.info(`Total average value: $${totalValue()}`);
+    console.info(`Total low value: $${totalLowValue()}`);
+    console.info(`Total amount of cards: ${countCards()}`);
+    console.info(`Cards with unique id: ${Object.keys(db).length}`);
+    console.info(`Cards with unique name: ${countCardsBy('name')}`);
+    console.info(`Total sets in collection: ${countCardsBy('set_id')}`);
+    console.info(`Total all cards: ${all_cards.length}`);
+    console.info(`Total all sets: ${all_sets.length}`);
+    console.info(`Collection status: ${collectionStatus()}%`);
+    break;
   case '-c':
     card_id = args[1];
     if (card_id in db) {
-      let card = db[card_id]
-      for(key in card){
-        value = card[key]
-        separator = (key.length >= 7)? '\t':'\t\t'
-        if (value) console.info(`${key}:${separator}${value}`)
+      let card = db[card_id];
+      for (key in card) {
+        value = card[key];
+        separator = key.length >= 7 ? '\t' : '\t\t';
+        if (value) console.info(`${key}:${separator}${value}`);
       }
-    }else{
-      console.error(`${card_id} not found`)
+    } else {
+      console.error(`${card_id} not found`);
     }
     break;
-  case "-s":
-    searchCard(args[1], args[2], args[3] == "true").forEach((card) =>
-      console.info(`  ${card.id}\t (x${card.amount}) ${card.name || ""}`)
+  case '-s':
+    searchCard(args[1], args[2], args[3] == 'true').forEach(card =>
+      console.info(`  ${card.id}\t (x${card.amount}) ${card.name || ''}`)
     );
     break;
-  case "-a":
+  case '-a':
     filename = args[1];
     if (fs.existsSync(filename)) loadFile(filename);
-    else console.error("bad file");
+    else console.error('bad file');
+    break;
+  case '-e':
+    exportCards();
+    console.info('done!');
     break;
   case '-r':
     card_id = args[1];
     if (card_id in db) {
-      if(--db[card_id].amount < 0){
-        delete db[card_id]
-        console.info(`${card_id} deleted from db`)
-      }else{
-        console.info(`${card_id} amount reduced`)
+      if (--db[card_id].amount < 0) {
+        delete db[card_id];
+        console.info(`${card_id} deleted from db`);
+      } else {
+        console.info(`${card_id} amount reduced`);
       }
-      fs.appendFileSync('deleted.txt',card_id)
+      fs.appendFileSync('deleted.txt', card_id);
       saveDB();
-    }else{
-      console.error(`${card_id} not found`)
+    } else {
+      console.error(`${card_id} not found`);
     }
     break;
   case '-d':
     card_id = args[1];
     if (card_id in db) {
-      delete db[card_id]
-      fs.appendFileSync('deleted.txt',card_id)
-      console.info(`${card_id} deleted from db`)
+      delete db[card_id];
+      fs.appendFileSync('deleted.txt', card_id);
+      console.info(`${card_id} deleted from db`);
       saveDB();
-    }else{
-      console.error(`${card_id} not found`)
+    } else {
+      console.error(`${card_id} not found`);
     }
     break;
-  case "-D":
+  case '-D':
     for (id in db) delete db[id];
     saveDB();
-    console.info("Done!");
+    console.info('Done!');
     break;
   case '-h':
-  console.info(`
+    console.info(`
 Yugioh Collection Manager
 
   -l 
@@ -236,6 +264,9 @@ Yugioh Collection Manager
 
   -a filename
     adds the ids indicated in the filename to database
+
+  -e
+    exports all the cards ids to cards.txt file
 
   -r id
     removes a card from collection decreasing its amount or

@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/ozcodex/yugioh-collection/issues"
   },
-  "homepage": "https://github.com/ozcodex/yugioh-collection#readme"
+  "homepage": "https://github.com/ozcodex/yugioh-collection#readme",
+  "prettier": {
+    "printWidth": 80,
+    "singleQuote": true,
+    "arrowParens": "avoid"
+  }
 }
