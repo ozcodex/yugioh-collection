@@ -111,12 +111,28 @@ function searchCard(property, value, strict = false) {
   return result;
 }
 
+function additor(a,b){
+  return a + b
+}
+
 function totalValue(){
-  return Object.values(db).map(card=> (card.price||0)*card.amount).reduce((a,b) => a+b).toFixed(2)
+  return Object.values(db).map(card=> (card.price||0)*card.amount).reduce(additor).toFixed(2)
 }
 
 function totalLowValue(){
-  return Object.values(db).map(card=> (card.price_low||0)*card.amount).reduce((a,b) => a+b).toFixed(2)
+  return Object.values(db).map(card=> (card.price_low||0)*card.amount).reduce(additor).toFixed(2)
+}
+
+function countCards(){
+  return Object.values(db).map(card => card.amount).reduce(additor)
+}
+
+function countCardsBy(prop){
+  return [...new Set(Object.values(db).map(card => card[prop]))].length
+}
+
+function collectionStatus(){
+  return (100*countCardsBy('name')/all_cards.length).toFixed(2);
 }
 
 function loadFile(name) {
@@ -135,9 +151,15 @@ switch (args[0]) {
     }
     break;
   case "-i":
-      console.info(`Total value: $${totalValue()}`)
+      console.info(`Total average value: $${totalValue()}`)
       console.info(`Total low value: $${totalLowValue()}`)
-    break;
+      console.info(`Total amount of cards: ${countCards()}`)
+      console.info(`Cards with unique id: ${Object.keys(db).length}`)
+      console.info(`Cards with unique name: ${countCardsBy('name')}`)
+      console.info(`Total sets in collection: ${countCardsBy('set_id')}`)
+      console.info(`Total all cards: ${all_cards.length}`)
+      console.info(`Collection status: ${collectionStatus()}%`)
+  break;
   case '-c':
     card_id = args[1];
     if (card_id in db) {
