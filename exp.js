@@ -69,22 +69,30 @@ function addCard(id) {
     };
     return db[id];
   }
-  db[id] = { missing: true };
+  db[id] = { id, missing: true };
   return db[id];
 }
 
-function searchCard(name){
-  for(id in db){
-    console.log(id)
+function searchCard(property, value, strict = false) {
+  result = [];
+  for (id in db) {
     let card = db[id];
-    if(card.name.toLowerCase() == name.toLowerCase()) return card
+    if (card[property]) {
+      if (strict) {
+        if (card[property] == value) result.push(card);
+      } else {
+        let regex = /[\W_ ]/g
+        if (card[property].toLowerCase().replace(regex,'').includes(value.toLowerCase().replace(regex,'')))
+          result.push(card);
+      }
+    }
   }
-  return null
+  return result;
 }
 
 //console.log(cardInfo("FOTB-EN043"));
 //console.log(addCard("YS15-SPF24"));
 //console.log(addCard("LOB-055"));
-//console.log(searchCard("Sparks"))
-readInputFile("out.txt").forEach((id) => addCard(id));
-saveDB();
+console.log(searchCard('missing',true,true));
+//readInputFile("out.txt").forEach((id) => addCard(id));
+//saveDB();
