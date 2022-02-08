@@ -86,7 +86,7 @@ function addCard(id) {
     return db[id];
   }
   db[id] = {
-    id: parseId,
+    id: parseId(id),
     amount: 1,
     missing: true,
     lang: getLang(id),
@@ -122,7 +122,14 @@ function searchCard(property, value, strict = false) {
 function exportCards(filename) {
   fs.writeFileSync(
     'cards.txt',
-    db.map(card => card.id)
+    Object.values(db)
+      .map(card => {
+        result = (card.id + '\n').repeat(card.amount)
+        if (result.includes('undefined')) console.debug(card);
+        return result
+        })
+      .join('')
+      //.replace(/^\s+|\s+$/g, '')
   );
 }
 
