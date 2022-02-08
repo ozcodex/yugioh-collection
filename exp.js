@@ -83,7 +83,7 @@ function searchCard(property, value, strict = false) {
         if (card[property] == value) result.push(card);
       } else {
         let regex = /[\W_ ]/g
-        if (card[property].toLowerCase().replace(regex,'').includes(value.toLowerCase().replace(regex,'')))
+        if (card[property].toString().toLowerCase().replace(regex,'').includes(value.toString().toLowerCase().replace(regex,'')))
           result.push(card);
       }
     }
@@ -121,12 +121,12 @@ Yugioh Collection Manager
 switch(args[0]){
   case '-l':
     for(id in db){
-      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||""}`)
+      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||''}`)
     }
     break;
   case '-s':
       searchCard(args[1],args[2],args[3]=='true')
-      .forEach(card=> console.info(`  ${id}\t (x${card.amount} ${card.name})`))
+      .forEach(card => console.info(`  ${id}\t (x${card.amount}) ${card.name||''}`))
     break;
   case '-a':
     let filename = args[1];
