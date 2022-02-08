@@ -121,7 +121,7 @@ Yugioh Collection Manager
 switch(args[0]){
   case '-l':
     for(id in db){
-      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||"Missing Name"}`)
+      console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||""}`)
     }
     break;
   case '-a':
