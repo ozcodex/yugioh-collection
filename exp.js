@@ -48,7 +48,8 @@ function readInputFile(filename) {
     .readFileSync(filename)
     .toString()
     .split("\n")
-    .map((line) => line.replace(/[^ -~]+/g, ""));
+    .map((line) => line.replace(/[^ -~]+/g, ""))
+    .filter(line => line != '');
 }
 
 function saveDB() {
@@ -90,9 +91,41 @@ function searchCard(property, value, strict = false) {
   return result;
 }
 
-//console.log(cardInfo("FOTB-EN043"));
-//console.log(addCard("YS15-SPF24"));
-//console.log(addCard("LOB-055"));
-console.log(searchCard('missing',true,true));
-//readInputFile("out.txt").forEach((id) => addCard(id));
-//saveDB();
+function loadFile(name){
+  readInputFile(name).forEach((id) => addCard(id));
+  saveDB();
+}
+
+//========================//
+
+const args = process.argv.slice(2)
+if (args.length == 0 || args[0] == '-h')
+  console.info(`
+Yugioh Collection Manager
+
+  -l 
+    list all cards in collection.
+
+  -s property value [strict]
+    search the cards containing the value in the property,
+    stricts is a optional boolean and indicates if strict
+    search should be used.
+
+  -a filename
+    adds the ids indicated in the filename to database
+
+  -h
+    shows this help
+`)
+
+switch(args[0]){
+  case '-l':
+    for(id in db){
+      console.info(`${id}:\t (x${db[id].amount}) ${db[id].name}`)
+    }
+    break;
+  case '-a':
+    let filename = args[1];
+    if (!filename) return console.error("wrong filename")
+    loadFile(filename)
+}
