@@ -57,7 +57,7 @@ function exportCollection() {
 	return db
 		.listCards()
 		.then((cards) => {
-      let out = cards.map(card => (card.id+'\n').repeat(card.amount|1)).join('')
+      let out = cards.map(card => (card.id+'\n').repeat(card.amount||1)).join('')
       fs.writeFileSync('out.txt',out);
       console.log("done")
     });
