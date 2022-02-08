@@ -10,6 +10,7 @@ bugs to solve:
 
 features to implement:
 - code refactor
+- delete card
 - sort list by price, date or amount
 - change list for top 10
 - convert count in stadistics
