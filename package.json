@@ -16,9 +16,5 @@
   "bugs": {
     "url": "https://github.com/ozcodex/yugioh-collection/issues"
   },
-  "homepage": "https://github.com/ozcodex/yugioh-collection#readme",
-  "dependencies": {
-    "enquirer": "^2.3.6",
-    "lokijs": "^1.5.12"
-  }
+  "homepage": "https://github.com/ozcodex/yugioh-collection#readme"
 }
