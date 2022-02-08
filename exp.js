@@ -20,12 +20,12 @@ function getLang(id) {
 }
 
 function cardInfo(id) {
-  id = parseId(id);
+  let p_id = parseId(id);
   const card = all_cards.filter((card) =>
-    card.card_sets?.some((set) => set.set_code === id)
+    card.card_sets?.some((set) => set.set_code === p_id)
   )[0];
   if (!card) return null;
-  const set = card.card_sets.filter((set) => set.set_code === id)[0];
+  const set = card.card_sets.filter((set) => set.set_code === p_id)[0];
   return {
     id: id,
     name: card.name,
@@ -124,9 +124,15 @@ switch(args[0]){
       console.info(`  ${id}\t (x${db[id].amount}) ${db[id].name||""}`)
     }
     break;
+  case '-s':
+      searchCard(args[1],args[2],args[3]=='true')
+      .forEach(card=> console.info(`  ${id}\t (x${card.amount} ${card.name})`))
+    break;
   case '-a':
     let filename = args[1];
     if (fs.existsSync(filename)) loadFile(filename)
     else console.error("bad file")
     break;
+  default:
+    console.info(`Invalid option, use -h to for more information`)
 }
