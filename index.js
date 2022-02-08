@@ -123,13 +123,9 @@ function exportCards(filename) {
   fs.writeFileSync(
     'cards.txt',
     Object.values(db)
-      .map(card => {
-        result = (card.id + '\n').repeat(card.amount)
-        if (result.includes('undefined')) console.debug(card);
-        return result
-        })
+      .map(card => (card.id + '\n').repeat(card.amount))
       .join('')
-      //.replace(/^\s+|\s+$/g, '')
+      .replace(/^\s+|\s+$/g, '')
   );
 }
 
