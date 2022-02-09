@@ -9,11 +9,9 @@ bugs to solve:
 - cards without amount
 
 features to implement:
-- sort list by price, date or amount
 - top 10 by price, amount, set completitude
 - add stadistics about archetype, card type and rarity
 - read decks from text file
-- % completed of sets
 - missing cards from set
 - cards of each language
 - cards of each rarity

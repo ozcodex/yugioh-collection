@@ -12,7 +12,14 @@ module.exports.additor = (a, b) => {
 };
 
 module.exports.emptyness = (obj) => {
-  return obj && (Object.keys(obj).length !== 0 || !Number.isNaN(obj));
+  return obj && Object.keys(obj).length !== 0;
+};
+
+module.exports.sortBy = (property, isNumeric) => {
+  return (a, b) => {
+    if (isNumeric) return Number(a[property]) > Number(b[property]) ? 1 : -1;
+    return a[property] > b[property] ? 1 : -1;
+  };
 };
 
 /* Print Masks */
@@ -34,13 +41,15 @@ module.exports.objectMask = (obj) => {
   return result.join('\n');
 };
 
-module.exports.errorMask = (message)=>{
-  return colorize('Error:', {
+module.exports.errorMask = (message) => {
+  return (
+    colorize('Error:', {
       color: 'red',
       bold: true,
     }),
     message
-}
+  );
+};
 
 /* Validators */
 
@@ -59,6 +68,12 @@ module.exports.getLang = (id) => {
   parts = id.split('-');
   if (parts.length === 1 || parts[1].length <= 3) return 'EN';
   else return parts[1].substr(0, 2);
+};
+
+
+module.exports.getSetId = (id) => {
+  this.checkId();
+  return id.split('-')[0];
 };
 
 module.exports.parseId = (id) => {
@@ -117,7 +132,7 @@ module.exports.defaultCard = (id) => {
     amount: 1,
     rarity: undefined,
     set_name: undefined,
-    set_code: id.split('-')[0],
+    set_code: this.getSetId(id),
     lang: this.getLang(id),
     price: 0,
     price_low: 0,

@@ -9,11 +9,15 @@ try {
   switch (args[0]) {
     case '-l':
       util.checkArgs(args, 0);
-      db.cards.forEach((card) => console.info(util.cardMask(card)));
+      db.cards
+        .sort(util.sortBy('price',true))
+        .forEach((card) => console.info(util.cardMask(card)));
       break;
     case '-L':
       util.checkArgs(args, 0);
-      db.sets.forEach((set) => console.info(util.setMask(set)));
+      db.sets
+        .sort(util.sortBy('owned'))
+        .forEach((set) => console.info(util.setMask(set)));
       break;
     case '-i':
       util.checkArgs(args, 0);
