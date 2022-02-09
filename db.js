@@ -85,10 +85,10 @@ module.exports = class DB {
     return this.db[id];
   }
 
-  getCardsIdsBySet(set_id) {
+  getCardsIdsBy(property, value) {
     return util.uniques(
       this.cards
-        .filter((card) => card.set_code == set_id)
+        .filter((card) => card[property] == value)
         .map((card) => card.id)
     );
   }
@@ -122,7 +122,7 @@ module.exports = class DB {
       num_cards: result.num_of_cards,
       date: result.tcg_date,
       owned: util.uniques(
-        this.getCardsIdsBySet(set_id).map((id) => util.parseId(id))
+        this.getCardsIdsBy('set_code', set_id).map((id) => util.parseId(id))
       ).length,
     };
   }
