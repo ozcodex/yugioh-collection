@@ -106,7 +106,7 @@ module.exports = class DB {
       id,
       ...util.getProps(card),
       rarity: set.set_rarity,
-      set_name: this.getSetInfo().name,
+      set_name: set.set_name,
       price: set.set_price,
       price_low: util.lowestPrice(card.card_prices[0]),
       image: card.card_images[0].id,
