@@ -37,11 +37,11 @@ module.exports = class DB {
   }
 
   get cards() {
-    return Object.values(this.db);
+    return Object.values(this.db.cards);
   }
 
   get cardIds() {
-    return Object.keys(this.db);
+    return Object.keys(this.db.cards);
   }
 
   get setIds() {
@@ -82,7 +82,7 @@ module.exports = class DB {
 
   getCard(id) {
     util.checkId(id);
-    return this.db[id];
+    return this.db.cards[id];
   }
 
   getCardsIdsBy(property, value) {
@@ -130,27 +130,27 @@ module.exports = class DB {
   /* Setter methods */
 
   setCard(id, card) {
-    this.db[id] = card;
+    this.db.cards[id] = card;
     this.saveDB();
   }
 
   increaseCardAmount(id) {
-    this.db[id].amount++;
+    this.db.cards[id].amount++;
     this.saveDB();
   }
 
   decreaseCardAmount(id) {
-    if (--this.db[id].amount <= 0) delete this.db[id];
+    if (--this.db.cards[id].amount <= 0) delete this.db.cards[id];
     this.saveDB();
   }
 
   deleteCard(id, card) {
-    delete this.db[id];
+    delete this.db.cards[id];
     this.saveDB();
   }
 
   deleteDB(id, card) {
-    this.db = {};
+    this.db = { cards: {} };
     this.saveDB();
   }
 
