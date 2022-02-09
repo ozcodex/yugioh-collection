@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "echo use: \"node index.js\""
   },
   "repository": {
     "type": "git",
@@ -17,8 +17,9 @@
     "url": "https://github.com/ozcodex/yugioh-collection/issues"
   },
   "homepage": "https://github.com/ozcodex/yugioh-collection#readme",
-  "dependencies": {
-    "enquirer": "^2.3.6",
-    "lokijs": "^1.5.12"
+  "prettier": {
+    "printWidth": 80,
+    "singleQuote": true,
+    "arrowParens": "always"
   }
 }

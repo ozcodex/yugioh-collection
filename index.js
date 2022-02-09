@@ -1,187 +1,144 @@
-const db = require("./db");
-const request = require("./request");
-const { prompt } = require("enquirer");
-const fs = require('fs')
+const util = require('./util');
+const DB = require('./db');
 
-function addCard(id) {
-	return db.findCard(id).then((card) => {
-		if (card !== null) {
-			card.amount = card.amount + 1 || 2;
-			return db.updateCard(card).then(() => console.log(card));
-		}
-		return request.cardData(id).then((data) => {
-			db.addCard(id, data).then(() => {
-				console.log(data);
-			});
-		});
-	});
+const db = new DB('main.db');
+
+const args = process.argv.slice(2);
+
+try {
+  switch (args[0]) {
+    case '-l':
+      util.checkArgs(args, 0);
+      db.cards
+        .sort(util.sortBy('price',true))
+        .forEach((card) => console.info(util.cardMask(card)));
+      break;
+    case '-L':
+      util.checkArgs(args, 0);
+      db.sets
+        .sort(util.sortBy('owned'))
+        .forEach((set) => console.info(util.setMask(set)));
+      break;
+    case '-i':
+      util.checkArgs(args, 0);
+      console.info(`Total average value: $${db.totalValue}`);
+      console.info(`Total low value: $${db.totalLowValue}`);
+      console.info(`Total amount of cards: ${db.totalCards}`);
+      console.info(`Cards with unique id: ${db.cards.length}`);
+      console.info(`Cards with unique name: ${db.cardNames.length}`);
+      console.info(`Total sets in collection: ${db.totalSets}`);
+      console.info(`Total all cards: ${db.allCardsLength}`);
+      console.info(`Total all sets: ${db.allSetsLength}`);
+      console.info(`Collection status: ${db.collectionStatus}%`);
+      break;
+    case '-c':
+      util.checkArgs(args, 1);
+      card = db.getCard(args[1]);
+      if (card) {
+        console.info(util.objectMask(card));
+      } else {
+        console.error('Card not found');
+      }
+      break;
+    case '-t':
+      util.checkArgs(args, 1);
+      set = db.getSetInfo(args[1]);
+      if (set) {
+        console.info(util.objectMask(set));
+      } else {
+        console.error('Set not found');
+      }
+      break;
+    case '-s':
+      util.checkArgs(args, 2);
+      db.searchCard(args[1], args[2]).forEach((card) =>
+        console.info(util.cardMask(card))
+      );
+      break;
+    case '-a':
+      util.checkArgs(args, 1);
+      db.importCards(args[1]);
+      console.info('Done!');
+      break;
+    case '-e':
+      util.checkArgs(args, 1);
+      db.exportCards(args[1]);
+      console.info('Done!');
+      break;
+    case '-r':
+      util.checkArgs(args, 1);
+      card = db.getCard(args[1]);
+      if (card) {
+        db.decreaseCardAmount(card.id);
+        console.info('Done!');
+      } else {
+        console.error('Card not found');
+      }
+      break;
+    case '-d':
+      util.checkArgs(args, 1);
+      card = db.getCard(args[1]);
+      if (card) {
+        db.deleteCard(card.id);
+        console.info('Done!');
+      } else {
+        console.error('Card not found');
+      }
+      break;
+    case '-D':
+      util.checkArgs(args, 0);
+      db.deleteDB();
+      console.info('Done!');
+      break;
+    case '-h':
+      console.info(`
+Yugioh Collection Manager
+
+  -l 
+    list all cards in collection
+
+  -L
+    list all owned sets
+
+  -i
+    shows relevant info about current collection
+  
+  -c id
+    shows detailed information about a card
+
+  -t id
+    shows detailed information about a set
+
+  -s property value [strict]
+    search the cards containing the value in the property,
+    stricts is a optional boolean and indicates if strict
+    search should be used.
+
+  -a filename
+    adds the ids indicated in the filename to database
+
+  -e
+    exports all the cards ids to cards.txt file
+
+  -r id
+    removes a card from collection decreasing its amount or
+    deleting it if is the last one
+
+  -d id
+    deletes a card using it id
+
+  -D
+    Delete all registers in database
+
+  -h
+    shows this help
+`);
+      break;
+    default:
+      console.info(
+        `Invalid option '${args[0] || ''}', use -h to for more information`
+      );
+  }
+} catch (e) {
+  console.error(util.errorMask(e.message));
 }
-
-function addMissingCard(id) {
-	return db.findCard(id).then((card) => {
-		if (card !== null) {
-			card.amount = card.amount + 1 || 2;
-			return db.updateCard(card).then(() => console.log(card));
-		}
-		return db.addCard(id, { missing: true }).then(() => {
-			console.log("Card Added!");
-		});
-	});
-}
-
-function printCard(id) {
-	return db.findCard(id).then((card) => {
-		console.log(card);
-	});
-}
-
-function deleteCard(id) {
-	return db.removeCard(id).then((card) => {
-		console.log("Card Deleted!");
-	});
-}
-
-function mask(card) {
-	let amount = "";
-	if (card.amount && card.amount > 1) amount = `(${card.amount}x) `;
-	return `${amount}${card.id} - ${card.name} [${card.rarity}]: $${card.average_price}`;
-}
-
-function listCards() {
-	return db
-		.listCards()
-		.then((cards) => cards.map(mask).forEach((card) => console.log(card)));
-}
-
-function exportCollection() {
-	return db
-		.listCards()
-		.then((cards) => {
-      let out = cards.map(card => (card.id+'\n').repeat(card.amount||1)).join('')
-      fs.writeFileSync('out.txt',out);
-      console.log("done")
-    });
-}
-
-function getCardsId() {
-	return db.listCards().then((cards) => cards.map((card) => card.id));
-}
-
-function propsToString(object) {
-	for (prop in object) object[prop] = String(object[prop]);
-	return object;
-}
-
-function countCards() {
-	return db.listCards().then((cards) => {
-		console.log(
-			"Total amount of cards:" +
-				cards
-					.map((card) => card.amount || 1)
-					.reduce((prev, curr) => prev + curr)
-		);
-		console.log("Total registers:" + cards.length);
-	});
-}
-
-function fetchCard(id) {
-	return request.cardData(id).then(console.log);
-}
-
-function getTotalValue() {
-	return db.listCards().then((cards) => {
-		let total = cards
-			.map((card) => (card.average_price || 1) * (card.amount || 1))
-			.reduce((prev, curr) => prev + curr)
-			.toFixed(2);
-		console.log("The total value of the collection is: $" + total);
-	});
-}
-
-// CLI functions
-
-options = [
-	"Add Card",
-	"Set Prefix",
-	"List Cards",
-	"View Card",
-	"Delete Card",
-	"Fetch Card",
-	"Count Cards",
-	"Total Value",
-	"Add Missing Card",
-  "Export Collection",
-	"Exit",
-];
-
-const menu = {
-	type: "select",
-	name: "option",
-	message: "Main Menu",
-	choices: options,
-};
-
-let prefix = "";
-
-const card_input = {
-	type: "input",
-	name: "id",
-	message: "Write the card number",
-	format: (input) => prefix + input.toUpperCase(),
-	result: (input) => prefix + input.toUpperCase(),
-};
-
-const prefix_input = {
-	type: "input",
-	name: "prefix",
-	message: "Write the prefix",
-	format: (input) => input.toUpperCase(),
-	result: (input) => input.toUpperCase(),
-};
-
-const card_selector = {
-	type: "autocomplete",
-	name: "id",
-	message: "Choose the card number",
-	limit: 5,
-	choices: getCardsId(),
-};
-
-async function mainLoop() {
-	do {
-		status = await prompt(menu)
-			.then((answer) => {
-				console.log("\033[2J");
-				switch (answer.option) {
-					case "Add Card":
-						return prompt(card_input).then((input) => addCard(input.id));
-					case "Set Prefix":
-						return prompt(prefix_input).then((input) => {
-							prefix = input.prefix;
-							console.log("prefix set!");
-						});
-					case "List Cards":
-						return listCards();
-					case "View Card":
-						return prompt(card_selector).then((input) => printCard(input.id));
-					case "Delete Card":
-						return prompt(card_selector).then((input) => deleteCard(input.id));
-					case "Fetch Card":
-						return prompt(card_input).then((input) => fetchCard(input.id));
-					case "Count Cards":
-						return countCards();
-					case "Total Value":
-						return getTotalValue();
-					case "Add Missing Card":
-						return prompt(card_input).then((input) => addMissingCard(input.id));
-          case "Export Collection":
-            return exportCollection();
-					case "Exit":
-						return Promise.resolve("stop");
-				}
-			})
-			.catch(console.error);
-	} while (status != "stop");
-}
-
-mainLoop();

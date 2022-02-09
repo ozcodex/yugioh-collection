@@ -9,27 +9,23 @@ bugs to solve:
 - cards without amount
 
 features to implement:
-- code refactor
-- sort list by price, date or amount
-- change list for top 10
-- convert count in stadistics
-- add stadistics about archetype, card type and archetype
+- top 10 by price, amount, set completitude
+- add stadistics about archetype, card type and rarity
 - read decks from text file
-- add a price sum by ranges
-- search by name
-- sets info in db
-- % completed of sets
+- missing cards from set
 - cards of each language
-- amount of cards by name
+- cards of each rarity
 - deck builder
-- edit card
-- update cards from internet
+- edit card (update)
 - check for missing cards
-- fix list to show missing cards
+- fix search to show missing cards
+- add validations and error handling
+- add documentation
+- increase verbose
 - graphical interface
 
 # source of data
-the json files `all_cards.json` and `card_sets.json` are obtained
+the json files `all_cards.json` and `all_sets.json` are obtained
 from this urls respectively:
 - https://db.ygoprodeck.com/api/v7/cardinfo.php
 - https://db.ygoprodeck.com/api/v7/cardsets.php
