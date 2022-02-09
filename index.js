@@ -7,12 +7,15 @@ const args = process.argv.slice(2);
 
 switch (args[0]) {
   case '-l':
+    util.checkArgs(args, 0);
     db.cards.forEach((card) => console.info(util.cardMask(card)));
     break;
   case '-L':
-    db.sets.forEach((set) => console.info(util.setMask(set)))
+    util.checkArgs(args, 0);
+    db.sets.forEach((set) => console.info(util.setMask(set)));
     break;
   case '-i':
+    util.checkArgs(args, 0);
     console.info(`Total average value: $${db.totalValue}`);
     console.info(`Total low value: $${db.totalLowValue}`);
     console.info(`Total amount of cards: ${db.totalCards}`);
@@ -24,50 +27,41 @@ switch (args[0]) {
     console.info(`Collection status: ${db.collectionStatus}%`);
     break;
   case '-c':
-    if (!args[1]) return console.error('Wrong number of parameters');
+    util.checkArgs(args, 1);
     card = db.getCard(args[1]);
     if (card) {
-      for (key in card) {
-        value = card[key];
-        separator = key.length >= 7 ? '\t' : '\t\t';
-        if (value) console.info(`${key}:${separator}${value}`);
-      }
+      console.info(util.objectMask(card));
     } else {
       console.error('Card not found');
     }
     break;
   case '-t':
-    if (!args[1]) return console.error('Wrong number of parameters');
+    util.checkArgs(args, 1);
     set = db.getSetInfo(args[1]);
     if (set) {
-      for (key in set) {
-        value = set[key];
-        separator = key.length >= 7 ? '\t' : '\t\t';
-        if (value) console.info(`${key}:${separator}${value}`);
-      }
+      console.info(util.objectMask(set));
     } else {
       console.error('Set not found');
     }
     break;
   case '-s':
-    if (!args[1] || !args[2])
-      return console.error('Wrong number of parameters');
+    util.checkArgs(args, 2);
     db.searchCard(args[1], args[2]).forEach((card) =>
       console.info(util.cardMask(card))
     );
     break;
   case '-a':
-    if (!args[1]) return console.error('Wrong number of parameters');
+    util.checkArgs(args, 1);
     db.importCards(args[1]);
     console.info('done!');
     break;
   case '-e':
-    if (!args[1]) return console.error('Wrong number of parameters');
+    util.checkArgs(args, 1);
     db.exportCards(args[1]);
     console.info('done');
     break;
   case '-r':
-    if (!args[1]) return console.error('Wrong number of parameters');
+    util.checkArgs(args, 1);
     card = db.getCard(args[1]);
     if (card) {
       db.decreaseCardAmount(card.id);
@@ -77,7 +71,7 @@ switch (args[0]) {
     }
     break;
   case '-d':
-    if (!args[1]) return console.error('Wrong number of parameters');
+    util.checkArgs(args, 1);
     card = db.getCard(args[1]);
     if (card) {
       db.deleteCard(card.id);
@@ -87,6 +81,7 @@ switch (args[0]) {
     }
     break;
   case '-D':
+    util.checkArgs(args, 0);
     db.deleteDB();
     console.info('Done!');
     break;

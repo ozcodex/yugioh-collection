@@ -9,7 +9,7 @@ module.exports.additor = (a, b) => {
 };
 
 module.exports.emptyness = (obj) => {
-  return (obj && Object.keys(obj).length !== 0);
+  return obj && Object.keys(obj).length !== 0;
 };
 
 module.exports.cardMask = (card) => {
@@ -20,8 +20,22 @@ module.exports.setMask = (set) => {
   return `  ${set.id}\t${set.owned}/${set.num_cards}\t ${set.name}`;
 };
 
+module.exports.objectMask = (obj) => {
+  let result = [];
+  for (key in obj) {
+    value = obj[key];
+    separator = key.length >= 7 ? '\t' : '\t\t';
+    if (value) result.push(`${key}:${separator}${value}`);
+  }
+  return result.join('\n');
+};
+
 module.exports.checkId = (id) => {
   //todo: if id dont match, throw an exception
+};
+
+module.exports.checkArgs = (args, n) => {
+  if (args.length !== n + 1) throw new Error('Wrong number of parameters');
 };
 
 module.exports.getLang = (id) => {
