@@ -33,12 +33,27 @@ module.exports = class DB {
   }
 
   get cardNames() {
-    return [...new Set(this.cards.map((card) => card.name))];
+    return util.uniques(this.cards.map((card) => card.name));
   }
 
   get cards() {
     return Object.values(this.db);
   }
+
+  get cardIds() {
+    return Object.keys(this.db);
+  }
+
+  get setIds() {
+    return util.uniques(
+      this.cards.map((card) => card.set_code)
+    );
+  }
+
+  get sets() {
+    return this.setIds.map((set_id) => this.getSetInfo(set_id)).filter(util.emptyness);
+  }
+
   get totalValue() {
     return this.cards
       .map((card) => (card.price || 0) * card.amount)
@@ -70,6 +85,14 @@ module.exports = class DB {
     return this.db[id];
   }
 
+  getCardsIdsBySet(set_id) {
+    return util.uniques(
+      this.cards
+        .filter((card) => card.set_code == set_id)
+        .map((card) => card.id)
+    );
+  }
+
   getCardInfo(id) {
     util.checkId(id);
     let parsed_id = util.parseId(id);
@@ -79,25 +102,28 @@ module.exports = class DB {
     if (!card) return null;
     const set =
       card.card_sets.filter((set) => set.set_code === parsed_id)[0] || {};
-    let card_props = [
-      'name',
-      'type',
-      'desc',
-      'atk',
-      'def',
-      'level',
-      'race',
-      'attribute',
-    ];
     return {
       id,
-      ...util.getProps(card, card_props),
+      ...util.getProps(card),
       rarity: set.set_rarity,
-      set_name: set.set_name,
+      set_name: this.getSetInfo().name,
       price: set.set_price,
-      set_id: id.split('-')[0],
       price_low: util.lowestPrice(card.card_prices[0]),
       image: card.card_images[0].id,
+    };
+  }
+
+  getSetInfo(set_id) {
+    let result = this.all_sets.find((set) => set.set_code == set_id);
+    if (!result) return {};
+    return {
+      name: result.set_name,
+      id: result.set_code,
+      num_cards: result.num_of_cards,
+      date: result.tcg_date,
+      owned: util.uniques(
+        this.getCardsIdsBySet(set_id).map((id) => util.parseId(id))
+      ).length,
     };
   }
 
@@ -136,7 +162,7 @@ module.exports = class DB {
       return;
     }
     let card = this.getCardInfo(id);
-    if (card) this.setCard(id, { ...util.defaultCard(id), card });
+    if (card) this.setCard(id, { ...util.defaultCard(id), ...card });
     else this.setCard(id, { ...util.defaultCard(id), missing: true });
   }
 

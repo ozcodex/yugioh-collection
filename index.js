@@ -9,6 +9,9 @@ switch (args[0]) {
   case '-l':
     db.cards.forEach((card) => console.info(util.cardMask(card)));
     break;
+  case '-L':
+    db.sets.forEach((set) => console.info(util.setMask(set)))
+    break;
   case '-i':
     console.info(`Total average value: $${db.totalValue}`);
     console.info(`Total low value: $${db.totalLowValue}`);
@@ -21,7 +24,7 @@ switch (args[0]) {
     console.info(`Collection status: ${db.collectionStatus}%`);
     break;
   case '-c':
-    if(!args[1]) return console.error('Wrong number of parameters')
+    if (!args[1]) return console.error('Wrong number of parameters');
     card = db.getCard(args[1]);
     if (card) {
       for (key in card) {
@@ -31,6 +34,19 @@ switch (args[0]) {
       }
     } else {
       console.error('Card not found');
+    }
+    break;
+  case '-t':
+    if (!args[1]) return console.error('Wrong number of parameters');
+    set = db.getSetInfo(args[1]);
+    if (set) {
+      for (key in set) {
+        value = set[key];
+        separator = key.length >= 7 ? '\t' : '\t\t';
+        if (value) console.info(`${key}:${separator}${value}`);
+      }
+    } else {
+      console.error('Set not found');
     }
     break;
   case '-s':
@@ -51,22 +67,22 @@ switch (args[0]) {
     console.info('done');
     break;
   case '-r':
-    if(!args[1]) return console.error('Wrong number of parameters')
+    if (!args[1]) return console.error('Wrong number of parameters');
     card = db.getCard(args[1]);
-    if(card){
-      db.decreaseCardAmount(card.id)
-      console.info('done')
-    }else{
+    if (card) {
+      db.decreaseCardAmount(card.id);
+      console.info('done');
+    } else {
       console.error('Card not found');
     }
     break;
   case '-d':
-    if(!args[1]) return console.error('Wrong number of parameters')
+    if (!args[1]) return console.error('Wrong number of parameters');
     card = db.getCard(args[1]);
-    if(card){
-      db.deleteCard(card.id)
-      console.info('done')
-    }else{
+    if (card) {
+      db.deleteCard(card.id);
+      console.info('done');
+    } else {
       console.error('Card not found');
     }
     break;
@@ -79,13 +95,19 @@ switch (args[0]) {
 Yugioh Collection Manager
 
   -l 
-    list all cards in collection.
+    list all cards in collection
+
+  -L
+    list all owned sets
 
   -i
     shows relevant info about current collection
   
   -c id
-    shows detailed information about card
+    shows detailed information about a card
+
+  -t id
+    shows detailed information about a set
 
   -s property value [strict]
     search the cards containing the value in the property,
@@ -113,5 +135,7 @@ Yugioh Collection Manager
 `);
     break;
   default:
-    console.info(`Invalid option '${args[0]||''}', use -h to for more information`);
+    console.info(
+      `Invalid option '${args[0] || ''}', use -h to for more information`
+    );
 }

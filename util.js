@@ -1,11 +1,23 @@
 const fs = require('fs');
 
+module.exports.uniques = (array) => {
+  return [...new Set(array)];
+};
+
 module.exports.additor = (a, b) => {
   return a + b;
 };
 
+module.exports.emptyness = (obj) => {
+  return (obj && Object.keys(obj).length !== 0);
+};
+
 module.exports.cardMask = (card) => {
-  return `  ${card.id}\t (x${card.amount}) ${card.name || '-'} $${card.price}`;
+  return `  ${card.id}\t (x${card.amount}) ${card.name} $${card.price}`;
+};
+
+module.exports.setMask = (set) => {
+  return `  ${set.id}\t${set.owned}/${set.num_cards}\t ${set.name}`;
 };
 
 module.exports.checkId = (id) => {
@@ -32,8 +44,18 @@ module.exports.lowestPrice = (prices) => {
   return Math.min(...Object.values(prices));
 };
 
-module.exports.getProps = (object, props) => {
+module.exports.getProps = (object) => {
   //todo: add validation
+  let props = [
+    'name',
+    'type',
+    'desc',
+    'atk',
+    'def',
+    'level',
+    'race',
+    'attribute',
+  ];
   const result = {};
   props.forEach((property) => {
     result[property] = object[property];
@@ -54,7 +76,7 @@ module.exports.readImportFile = (filename) => {
 module.exports.defaultCard = (id) => {
   return {
     id,
-    name: undefined,
+    name: '-',
     type: undefined,
     desc: undefined,
     atk: undefined,
@@ -65,10 +87,10 @@ module.exports.defaultCard = (id) => {
     amount: 1,
     rarity: undefined,
     set_name: undefined,
-    set_id: undefined,
+    set_code: id.split('-')[0],
     lang: this.getLang(id),
     price: 0,
     price_low: 0,
-    image: undefined,
+    image: '0',
   };
 };
