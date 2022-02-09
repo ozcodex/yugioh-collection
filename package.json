@@ -20,6 +20,6 @@
   "prettier": {
     "printWidth": 80,
     "singleQuote": true,
-    "arrowParens": "avoid"
+    "arrowParens": "always"
   }
 }

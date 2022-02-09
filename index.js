@@ -1,44 +1,16 @@
-// this is an experiment
-// the idea behind this experiment is to manage the card collection
-// offline and using only node core libraries, without installing anything.
+const util = require('./util');
 const fs = require('fs');
 const all_cards = require('./all_cards.json').data;
 const all_sets = require('./all_sets.json');
 const db = require('./db.json');
 
-function parseId(id) {
-  parts = id.split('-');
-  if (parts.length === 1) return id;
-  if (parts[1].length <= 3) return id;
-  parts[1] = '-EN' + parts[1].substring(2);
-  return parts.join('');
-}
-
-function getLang(id) {
-  parts = id.split('-');
-  if (parts.length === 1 || parts[1].length <= 3) return 'EN';
-  else return parts[1].substr(0, 2);
-}
-
-function averagePrice(prices) {
-  let price = Object.values(prices);
-  return (
-    price.map(p => parseFloat(p)).reduce((a, b) => a + b) / price.length
-  ).toFixed(2);
-}
-
-function lowestPrice(prices) {
-  let price = Object.values(prices);
-  return Math.min(...price);
-}
-
 function cardInfo(id) {
-  let p_id = parseId(id);
-  const card = all_cards.filter(card =>
-    card.card_sets?.some(set => set.set_code === p_id)
+  let p_id = util.parseId(id);
+  const card = all_cards.filter((card) =>
+    card.card_sets?.some((set) => set.set_code === p_id)
   )[0];
   if (!card) return null;
-  const set = card.card_sets.filter(set => set.set_code === p_id)[0];
+  const set = card.card_sets.filter((set) => set.set_code === p_id)[0];
   return {
     id: id,
     name: card.name,
@@ -53,7 +25,7 @@ function cardInfo(id) {
     set_name: set?.set_name,
     set_id: id.split('-')[0],
     price: set?.set_price,
-    price_low: lowestPrice(card.card_prices[0]),
+    price_low: util.lowestPrice(card.card_prices[0]),
     image: card.card_images[0].id,
   };
 }
@@ -63,8 +35,8 @@ function readInputFile(filename) {
     .readFileSync(filename)
     .toString()
     .split('\n')
-    .map(line => line.replace(/[^ -~]+/g, ''))
-    .filter(line => line != '');
+    .map((line) => line.replace(/[^ -~]+/g, ''))
+    .filter((line) => line != '');
 }
 
 function saveDB() {
@@ -81,15 +53,15 @@ function addCard(id) {
     db[id] = {
       ...card,
       amount: 1,
-      lang: getLang(id),
+      lang: util.getLang(id),
     };
     return db[id];
   }
   db[id] = {
-    id: parseId(id),
+    id: util.parseId(id),
     amount: 1,
     missing: true,
-    lang: getLang(id),
+    lang: util.getLang(id),
     price: 0,
     price_low: 0,
   };
@@ -123,38 +95,34 @@ function exportCards(filename) {
   fs.writeFileSync(
     'cards.txt',
     Object.values(db)
-      .map(card => (card.id + '\n').repeat(card.amount))
+      .map((card) => (card.id + '\n').repeat(card.amount))
       .join('')
       .replace(/^\s+|\s+$/g, '')
   );
 }
 
-function additor(a, b) {
-  return a + b;
-}
-
 function totalValue() {
   return Object.values(db)
-    .map(card => (card.price || 0) * card.amount)
-    .reduce(additor)
+    .map((card) => (card.price || 0) * card.amount)
+    .reduce(util.additor)
     .toFixed(2);
 }
 
 function totalLowValue() {
   return Object.values(db)
-    .map(card => (card.price_low || 0) * card.amount)
-    .reduce(additor)
+    .map((card) => (card.price_low || 0) * card.amount)
+    .reduce(util.additor)
     .toFixed(2);
 }
 
 function countCards() {
   return Object.values(db)
-    .map(card => card.amount)
-    .reduce(additor);
+    .map((card) => card.amount)
+    .reduce(util.additor);
 }
 
 function countCardsBy(prop) {
-  return [...new Set(Object.values(db).map(card => card[prop]))].length;
+  return [...new Set(Object.values(db).map((card) => card[prop]))].length;
 }
 
 function collectionStatus() {
@@ -162,7 +130,7 @@ function collectionStatus() {
 }
 
 function loadFile(name) {
-  readInputFile(name).forEach(id => addCard(id));
+  readInputFile(name).forEach((id) => addCard(id));
   saveDB();
 }
 
@@ -203,7 +171,7 @@ switch (args[0]) {
     }
     break;
   case '-s':
-    searchCard(args[1], args[2], args[3] == 'true').forEach(card =>
+    searchCard(args[1], args[2], args[3] == 'true').forEach((card) =>
       console.info(`  ${card.id}\t (x${card.amount}) ${card.name || ''}`)
     );
     break;
