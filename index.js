@@ -1,218 +1,77 @@
 const util = require('./util');
-const fs = require('fs');
-const all_cards = require('./all_cards.json').data;
-const all_sets = require('./all_sets.json');
-const db = require('./db.json');
+const DB = require('./db');
 
-function cardInfo(id) {
-  let p_id = util.parseId(id);
-  const card = all_cards.filter((card) =>
-    card.card_sets?.some((set) => set.set_code === p_id)
-  )[0];
-  if (!card) return null;
-  const set = card.card_sets.filter((set) => set.set_code === p_id)[0];
-  return {
-    id: id,
-    name: card.name,
-    type: card.type,
-    desc: card.desc,
-    atk: card.atk,
-    def: card.def,
-    level: card.level,
-    race: card.race,
-    attribute: card.attribute,
-    rarity: set?.set_rarity,
-    set_name: set?.set_name,
-    set_id: id.split('-')[0],
-    price: set?.set_price,
-    price_low: util.lowestPrice(card.card_prices[0]),
-    image: card.card_images[0].id,
-  };
-}
-
-function readInputFile(filename) {
-  return fs
-    .readFileSync(filename)
-    .toString()
-    .split('\n')
-    .map((line) => line.replace(/[^ -~]+/g, ''))
-    .filter((line) => line != '');
-}
-
-function saveDB() {
-  fs.writeFileSync('db.json', JSON.stringify(db));
-}
-
-function addCard(id) {
-  if (db[id]) {
-    db[id].amount++;
-    return db[id];
-  }
-  card = cardInfo(id);
-  if (card) {
-    db[id] = {
-      ...card,
-      amount: 1,
-      lang: util.getLang(id),
-    };
-    return db[id];
-  }
-  db[id] = {
-    id: util.parseId(id),
-    amount: 1,
-    missing: true,
-    lang: util.getLang(id),
-    price: 0,
-    price_low: 0,
-  };
-  return db[id];
-}
-
-function searchCard(property, value, strict = false) {
-  result = [];
-  for (id in db) {
-    let card = db[id];
-    if (card[property]) {
-      if (strict) {
-        if (card[property] == value) result.push(card);
-      } else {
-        let regex = /[\W_ ]/g;
-        if (
-          card[property]
-            .toString()
-            .toLowerCase()
-            .replace(regex, '')
-            .includes(value.toString().toLowerCase().replace(regex, ''))
-        )
-          result.push(card);
-      }
-    }
-  }
-  return result;
-}
-
-function exportCards(filename) {
-  fs.writeFileSync(
-    'cards.txt',
-    Object.values(db)
-      .map((card) => (card.id + '\n').repeat(card.amount))
-      .join('')
-      .replace(/^\s+|\s+$/g, '')
-  );
-}
-
-function totalValue() {
-  return Object.values(db)
-    .map((card) => (card.price || 0) * card.amount)
-    .reduce(util.additor)
-    .toFixed(2);
-}
-
-function totalLowValue() {
-  return Object.values(db)
-    .map((card) => (card.price_low || 0) * card.amount)
-    .reduce(util.additor)
-    .toFixed(2);
-}
-
-function countCards() {
-  return Object.values(db)
-    .map((card) => card.amount)
-    .reduce(util.additor);
-}
-
-function countCardsBy(prop) {
-  return [...new Set(Object.values(db).map((card) => card[prop]))].length;
-}
-
-function collectionStatus() {
-  return ((100 * countCardsBy('name')) / all_cards.length).toFixed(2);
-}
-
-function loadFile(name) {
-  readInputFile(name).forEach((id) => addCard(id));
-  saveDB();
-}
-
-//========================//
+const db = new DB('main.db');
 
 const args = process.argv.slice(2);
 
 switch (args[0]) {
   case '-l':
-    for (id in db) {
-      console.info(
-        `  ${id}\t (x${db[id].amount}) ${db[id].name || '-'} $${db[id].price}`
-      );
-    }
+    db.cards.forEach((card) => console.info(util.mask(card)));
     break;
   case '-i':
-    console.info(`Total average value: $${totalValue()}`);
-    console.info(`Total low value: $${totalLowValue()}`);
-    console.info(`Total amount of cards: ${countCards()}`);
-    console.info(`Cards with unique id: ${Object.keys(db).length}`);
-    console.info(`Cards with unique name: ${countCardsBy('name')}`);
-    console.info(`Total sets in collection: ${countCardsBy('set_id')}`);
-    console.info(`Total all cards: ${all_cards.length}`);
-    console.info(`Total all sets: ${all_sets.length}`);
-    console.info(`Collection status: ${collectionStatus()}%`);
+    console.info(`Total average value: $${db.totalValue}`);
+    console.info(`Total low value: $${db.totalLowValue}`);
+    console.info(`Total amount of cards: ${db.totalCards}`);
+    console.info(`Cards with unique id: ${db.cards.length}`);
+    console.info(`Cards with unique name: ${db.cardNames.length}`);
+    console.info(`Total sets in collection: ${db.totalSets}`);
+    console.info(`Total all cards: ${db.allCardsLength}`);
+    console.info(`Total all sets: ${db.allSetsLength}`);
+    console.info(`Collection status: ${db.collectionStatus}%`);
     break;
   case '-c':
-    card_id = args[1];
-    if (card_id in db) {
-      let card = db[card_id];
+    if(!args[1]) return console.error('Wrong number of parameters')
+    card = db.getCard(args[1]);
+    if (card) {
       for (key in card) {
         value = card[key];
         separator = key.length >= 7 ? '\t' : '\t\t';
         if (value) console.info(`${key}:${separator}${value}`);
       }
     } else {
-      console.error(`${card_id} not found`);
+      console.error('Card not found');
     }
     break;
+    if (!args[1] || !args[2])
+      return console.error('Wrong number of parameters');
   case '-s':
-    searchCard(args[1], args[2], args[3] == 'true').forEach((card) =>
-      console.info(`  ${card.id}\t (x${card.amount}) ${card.name || ''}`)
+    searchCard(args[1], args[2]).forEach((card) =>
+      console.info(util.cardMask(card))
     );
     break;
   case '-a':
-    filename = args[1];
-    if (fs.existsSync(filename)) loadFile(filename);
-    else console.error('bad file');
-    break;
-  case '-e':
-    exportCards();
+    if (!args[1]) return console.error('Wrong number of parameters');
+    db.importCards(args[1]);
     console.info('done!');
     break;
+  case '-e':
+    if (!args[1]) return console.error('Wrong number of parameters');
+    db.exportCards(args[1]);
+    console.info('done');
+    break;
   case '-r':
-    card_id = args[1];
-    if (card_id in db) {
-      if (--db[card_id].amount < 0) {
-        delete db[card_id];
-        console.info(`${card_id} deleted from db`);
-      } else {
-        console.info(`${card_id} amount reduced`);
-      }
-      fs.appendFileSync('deleted.txt', card_id);
-      saveDB();
-    } else {
-      console.error(`${card_id} not found`);
+    if(!args[1]) return console.error('Wrong number of parameters')
+    card = db.getCard(args[1]);
+    if(card){
+      db.decreaseCardAmount(card.id)
+      console.info('done')
+    }else{
+      console.error('Card not found');
     }
     break;
   case '-d':
-    card_id = args[1];
-    if (card_id in db) {
-      delete db[card_id];
-      fs.appendFileSync('deleted.txt', card_id);
-      console.info(`${card_id} deleted from db`);
-      saveDB();
-    } else {
-      console.error(`${card_id} not found`);
+    if(!args[1]) return console.error('Wrong number of parameters')
+    card = db.getCard(args[1]);
+    if(card){
+      db.deleteCard(card.id)
+      console.info('done')
+    }else{
+      console.error('Card not found');
     }
     break;
   case '-D':
-    for (id in db) delete db[id];
-    saveDB();
+    db.deleteDB();
     console.info('Done!');
     break;
   case '-h':
@@ -254,5 +113,5 @@ Yugioh Collection Manager
 `);
     break;
   default:
-    console.info(`Invalid option '${args[0]}', use -h to for more information`);
+    console.info(`Invalid option '${args[0]||''}', use -h to for more information`);
 }

@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 module.exports.additor = (a, b) => {
   return a + b;
 };
@@ -40,7 +42,7 @@ module.exports.getProps = (object, props) => {
 };
 
 module.exports.readInputFile = (filename) => {
-  //todo: add validation
+  if (!fs.existsSync(filename)) throw new Error('Wrong filename!');
   return fs
     .readFileSync(filename)
     .toString()
@@ -51,7 +53,7 @@ module.exports.readInputFile = (filename) => {
 
 module.exports.defaultCard = (id) => {
   return {
-    id: util.parseId(id),
+    id,
     name: undefined,
     type: undefined,
     desc: undefined,
@@ -64,7 +66,7 @@ module.exports.defaultCard = (id) => {
     rarity: undefined,
     set_name: undefined,
     set_id: undefined,
-    lang: util.getLang(id),
+    lang: this.getLang(id),
     price: 0,
     price_low: 0,
     image: undefined,

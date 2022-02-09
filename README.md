@@ -23,6 +23,7 @@ features to implement:
 - fix search to show missing cards
 - add validations and error handling
 - add documentation
+- increase verbose
 - graphical interface
 
 # source of data

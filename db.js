@@ -39,6 +39,33 @@ module.exports = class DB {
   get cards() {
     return Object.values(this.db);
   }
+  get totalValue() {
+    return Object.values(db)
+      .map((card) => (card.price || 0) * card.amount)
+      .reduce(util.additor)
+      .toFixed(2);
+  }
+
+  get totalLowValue() {
+    return Object.values(db)
+      .map((card) => (card.price_low || 0) * card.amount)
+      .reduce(util.additor)
+      .toFixed(2);
+  }
+
+  get totalCards() {
+    return Object.values(db)
+      .map((card) => card.amount)
+      .reduce(util.additor);
+  }
+
+  get totalSets() {
+    return [...new Set(Object.values(db).map((card) => card.set_id))].length;
+  }
+
+  get collectionStatus() {
+    return ((100 * this.cardNames.length) / this.allCardsLength).toFixed(2);
+  }
 
   getCard(id) {
     util.checkId(id);
@@ -81,7 +108,17 @@ module.exports = class DB {
   }
 
   decreaseCardAmount(id) {
-    this.db[id].amount++;
+    if(--this.db[id].amount <= 0) delete this.db[id];
+    this.saveDB();
+  }
+
+  deleteCard(id, card) {
+    delete this.db[id];
+    this.saveDB();
+  }
+
+  deleteDB(id, card) {
+    this.db = {};
     this.saveDB();
   }
 
@@ -100,56 +137,32 @@ module.exports = class DB {
   searchCard(property, value) {
     this.cards.filter((card) =>
       card[property]
-        .toString()
+        ?.toString()
         .toLowerCase()
         .replace(regex, '')
         .includes(
           value
-            .toString()
+            ?.toString()
             .toLowerCase()
             .replace(/[\W_ ]/g, '')
         )
     );
   }
 
+  importCards(filename) {
+    util.readImportFile(filename).forEach((id) => this.addCard(id));
+    this.saveDB();
+  }
+
+  exportCards = (filename, cards) => {
+    fs.writeFileSync(
+      filename,
+      cards
+        .map((card) => (card.id + '\n').repeat(card.amount))
+        .join('')
+        .replace(/^\s+|\s+$/g, '')
+    );
+  };
+
   /* end of class*/
-};
-
-exportCards = (filename) => {
-  fs.writeFileSync(
-    'cards.txt',
-    Object.values(db)
-      .map((card) => (card.id + '\n').repeat(card.amount))
-      .join('')
-      .replace(/^\s+|\s+$/g, '')
-  );
-};
-
-totalValue = () => {
-  return Object.values(db)
-    .map((card) => (card.price || 0) * card.amount)
-    .reduce(util.additor)
-    .toFixed(2);
-};
-
-totalLowValue = () => {
-  return Object.values(db)
-    .map((card) => (card.price_low || 0) * card.amount)
-    .reduce(util.additor)
-    .toFixed(2);
-};
-
-countCards = () => {
-  return Object.values(db)
-    .map((card) => card.amount)
-    .reduce(util.additor);
-};
-
-countCardsBy = (prop) => {
-  return [...new Set(Object.values(db).map((card) => card[prop]))].length;
-};
-
-loadFile = (name) => {
-  readInputFile(name).forEach((id) => addCard(id));
-  saveDB();
 };
