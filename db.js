@@ -12,7 +12,7 @@ module.exports = class DB {
     this.db_file = db_file;
     this.db = {};
     //
-    loadDB();
+    this.loadDB();
   }
 
   loadDB() {
@@ -26,10 +26,10 @@ module.exports = class DB {
   /* Getter methods */
 
   get allCardsLength() {
-    return all_cards.length;
+    return this.all_cards.length;
   }
   get allSetsLength() {
-    return all_sets.length;
+    return this.all_sets.length;
   }
 
   get cardNames() {
@@ -40,27 +40,25 @@ module.exports = class DB {
     return Object.values(this.db);
   }
   get totalValue() {
-    return Object.values(db)
+    return this.cards
       .map((card) => (card.price || 0) * card.amount)
       .reduce(util.additor)
       .toFixed(2);
   }
 
   get totalLowValue() {
-    return Object.values(db)
+    return this.cards
       .map((card) => (card.price_low || 0) * card.amount)
       .reduce(util.additor)
       .toFixed(2);
   }
 
   get totalCards() {
-    return Object.values(db)
-      .map((card) => card.amount)
-      .reduce(util.additor);
+    return this.cards.map((card) => card.amount).reduce(util.additor);
   }
 
   get totalSets() {
-    return [...new Set(Object.values(db).map((card) => card.set_id))].length;
+    return [...new Set(this.cards.map((card) => card.set_id))].length;
   }
 
   get collectionStatus() {
@@ -81,8 +79,16 @@ module.exports = class DB {
     if (!card) return null;
     const set =
       card.card_sets.filter((set) => set.set_code === parsed_id)[0] || {};
-    let card_props = [name, type, desc, atk, def, level, race, attribute];
-    let set_props = [, ,];
+    let card_props = [
+      'name',
+      'type',
+      'desc',
+      'atk',
+      'def',
+      'level',
+      'race',
+      'attribute',
+    ];
     return {
       id,
       ...util.getProps(card, card_props),
@@ -108,7 +114,7 @@ module.exports = class DB {
   }
 
   decreaseCardAmount(id) {
-    if(--this.db[id].amount <= 0) delete this.db[id];
+    if (--this.db[id].amount <= 0) delete this.db[id];
     this.saveDB();
   }
 
@@ -135,11 +141,11 @@ module.exports = class DB {
   }
 
   searchCard(property, value) {
-    this.cards.filter((card) =>
+    return this.cards.filter((card) =>
       card[property]
         ?.toString()
         .toLowerCase()
-        .replace(regex, '')
+        .replace(/[\W_ ]/g, '')
         .includes(
           value
             ?.toString()
@@ -154,10 +160,10 @@ module.exports = class DB {
     this.saveDB();
   }
 
-  exportCards = (filename, cards) => {
+  exportCards = (filename) => {
     fs.writeFileSync(
       filename,
-      cards
+      this.cards
         .map((card) => (card.id + '\n').repeat(card.amount))
         .join('')
         .replace(/^\s+|\s+$/g, '')

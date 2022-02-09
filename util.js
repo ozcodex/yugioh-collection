@@ -41,7 +41,7 @@ module.exports.getProps = (object, props) => {
   return result;
 };
 
-module.exports.readInputFile = (filename) => {
+module.exports.readImportFile = (filename) => {
   if (!fs.existsSync(filename)) throw new Error('Wrong filename!');
   return fs
     .readFileSync(filename)

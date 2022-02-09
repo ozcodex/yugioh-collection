@@ -9,7 +9,6 @@ bugs to solve:
 - cards without amount
 
 features to implement:
-- code refactor
 - sort list by price, date or amount
 - top 10 by price, amount,
 - add stadistics about archetype, card type and rarity
@@ -18,7 +17,7 @@ features to implement:
 - cards of each language
 - cards of each rarity
 - deck builder
-- edit card
+- edit card (update)
 - check for missing cards
 - fix search to show missing cards
 - add validations and error handling

@@ -7,7 +7,7 @@ const args = process.argv.slice(2);
 
 switch (args[0]) {
   case '-l':
-    db.cards.forEach((card) => console.info(util.mask(card)));
+    db.cards.forEach((card) => console.info(util.cardMask(card)));
     break;
   case '-i':
     console.info(`Total average value: $${db.totalValue}`);
@@ -33,10 +33,10 @@ switch (args[0]) {
       console.error('Card not found');
     }
     break;
+  case '-s':
     if (!args[1] || !args[2])
       return console.error('Wrong number of parameters');
-  case '-s':
-    searchCard(args[1], args[2]).forEach((card) =>
+    db.searchCard(args[1], args[2]).forEach((card) =>
       console.info(util.cardMask(card))
     );
     break;
