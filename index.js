@@ -5,88 +5,89 @@ const db = new DB('main.db');
 
 const args = process.argv.slice(2);
 
-switch (args[0]) {
-  case '-l':
-    util.checkArgs(args, 0);
-    db.cards.forEach((card) => console.info(util.cardMask(card)));
-    break;
-  case '-L':
-    util.checkArgs(args, 0);
-    db.sets.forEach((set) => console.info(util.setMask(set)));
-    break;
-  case '-i':
-    util.checkArgs(args, 0);
-    console.info(`Total average value: $${db.totalValue}`);
-    console.info(`Total low value: $${db.totalLowValue}`);
-    console.info(`Total amount of cards: ${db.totalCards}`);
-    console.info(`Cards with unique id: ${db.cards.length}`);
-    console.info(`Cards with unique name: ${db.cardNames.length}`);
-    console.info(`Total sets in collection: ${db.totalSets}`);
-    console.info(`Total all cards: ${db.allCardsLength}`);
-    console.info(`Total all sets: ${db.allSetsLength}`);
-    console.info(`Collection status: ${db.collectionStatus}%`);
-    break;
-  case '-c':
-    util.checkArgs(args, 1);
-    card = db.getCard(args[1]);
-    if (card) {
-      console.info(util.objectMask(card));
-    } else {
-      console.error('Card not found');
-    }
-    break;
-  case '-t':
-    util.checkArgs(args, 1);
-    set = db.getSetInfo(args[1]);
-    if (set) {
-      console.info(util.objectMask(set));
-    } else {
-      console.error('Set not found');
-    }
-    break;
-  case '-s':
-    util.checkArgs(args, 2);
-    db.searchCard(args[1], args[2]).forEach((card) =>
-      console.info(util.cardMask(card))
-    );
-    break;
-  case '-a':
-    util.checkArgs(args, 1);
-    db.importCards(args[1]);
-    console.info('done!');
-    break;
-  case '-e':
-    util.checkArgs(args, 1);
-    db.exportCards(args[1]);
-    console.info('done');
-    break;
-  case '-r':
-    util.checkArgs(args, 1);
-    card = db.getCard(args[1]);
-    if (card) {
-      db.decreaseCardAmount(card.id);
-      console.info('done');
-    } else {
-      console.error('Card not found');
-    }
-    break;
-  case '-d':
-    util.checkArgs(args, 1);
-    card = db.getCard(args[1]);
-    if (card) {
-      db.deleteCard(card.id);
-      console.info('done');
-    } else {
-      console.error('Card not found');
-    }
-    break;
-  case '-D':
-    util.checkArgs(args, 0);
-    db.deleteDB();
-    console.info('Done!');
-    break;
-  case '-h':
-    console.info(`
+try {
+  switch (args[0]) {
+    case '-l':
+      util.checkArgs(args, 0);
+      db.cards.forEach((card) => console.info(util.cardMask(card)));
+      break;
+    case '-L':
+      util.checkArgs(args, 0);
+      db.sets.forEach((set) => console.info(util.setMask(set)));
+      break;
+    case '-i':
+      util.checkArgs(args, 0);
+      console.info(`Total average value: $${db.totalValue}`);
+      console.info(`Total low value: $${db.totalLowValue}`);
+      console.info(`Total amount of cards: ${db.totalCards}`);
+      console.info(`Cards with unique id: ${db.cards.length}`);
+      console.info(`Cards with unique name: ${db.cardNames.length}`);
+      console.info(`Total sets in collection: ${db.totalSets}`);
+      console.info(`Total all cards: ${db.allCardsLength}`);
+      console.info(`Total all sets: ${db.allSetsLength}`);
+      console.info(`Collection status: ${db.collectionStatus}%`);
+      break;
+    case '-c':
+      util.checkArgs(args, 1);
+      card = db.getCard(args[1]);
+      if (card) {
+        console.info(util.objectMask(card));
+      } else {
+        console.error('Card not found');
+      }
+      break;
+    case '-t':
+      util.checkArgs(args, 1);
+      set = db.getSetInfo(args[1]);
+      if (set) {
+        console.info(util.objectMask(set));
+      } else {
+        console.error('Set not found');
+      }
+      break;
+    case '-s':
+      util.checkArgs(args, 2);
+      db.searchCard(args[1], args[2]).forEach((card) =>
+        console.info(util.cardMask(card))
+      );
+      break;
+    case '-a':
+      util.checkArgs(args, 1);
+      db.importCards(args[1]);
+      console.info('Done!');
+      break;
+    case '-e':
+      util.checkArgs(args, 1);
+      db.exportCards(args[1]);
+      console.info('Done!');
+      break;
+    case '-r':
+      util.checkArgs(args, 1);
+      card = db.getCard(args[1]);
+      if (card) {
+        db.decreaseCardAmount(card.id);
+        console.info('Done!');
+      } else {
+        console.error('Card not found');
+      }
+      break;
+    case '-d':
+      util.checkArgs(args, 1);
+      card = db.getCard(args[1]);
+      if (card) {
+        db.deleteCard(card.id);
+        console.info('Done!');
+      } else {
+        console.error('Card not found');
+      }
+      break;
+    case '-D':
+      util.checkArgs(args, 0);
+      db.deleteDB();
+      console.info('Done!');
+      break;
+    case '-h':
+      console.info(`
 Yugioh Collection Manager
 
   -l 
@@ -128,9 +129,12 @@ Yugioh Collection Manager
   -h
     shows this help
 `);
-    break;
-  default:
-    console.info(
-      `Invalid option '${args[0] || ''}', use -h to for more information`
-    );
+      break;
+    default:
+      console.info(
+        `Invalid option '${args[0] || ''}', use -h to for more information`
+      );
+  }
+} catch (e) {
+  console.error(util.errorMask(e.message));
 }

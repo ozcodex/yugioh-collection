@@ -1,4 +1,7 @@
 const fs = require('fs');
+const colorize = require('./colorize');
+
+/* Callbacks */
 
 module.exports.uniques = (array) => {
   return [...new Set(array)];
@@ -9,9 +12,10 @@ module.exports.additor = (a, b) => {
 };
 
 module.exports.emptyness = (obj) => {
-  return obj && Object.keys(obj).length !== 0;
+  return obj && (Object.keys(obj).length !== 0 || !Number.isNaN(obj));
 };
 
+/* Print Masks */
 module.exports.cardMask = (card) => {
   return `  ${card.id}\t (x${card.amount}) ${card.name} $${card.price}`;
 };
@@ -30,6 +34,16 @@ module.exports.objectMask = (obj) => {
   return result.join('\n');
 };
 
+module.exports.errorMask = (message)=>{
+  return colorize('Error:', {
+      color: 'red',
+      bold: true,
+    }),
+    message
+}
+
+/* Validators */
+
 module.exports.checkId = (id) => {
   //todo: if id dont match, throw an exception
 };
@@ -37,6 +51,8 @@ module.exports.checkId = (id) => {
 module.exports.checkArgs = (args, n) => {
   if (args.length !== n + 1) throw new Error('Wrong number of parameters');
 };
+
+/* Other functions */
 
 module.exports.getLang = (id) => {
   this.checkId();
