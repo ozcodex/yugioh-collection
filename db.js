@@ -45,13 +45,13 @@ module.exports = class DB {
   }
 
   get setIds() {
-    return util.uniques(
-      this.cards.map((card) => card.set_code)
-    );
+    return util.uniques(this.cards.map((card) => card.set_code));
   }
 
   get sets() {
-    return this.setIds.map((set_id) => this.getSetInfo(set_id)).filter(util.emptyness);
+    return this.setIds
+      .map((set_id) => this.getSetInfo(set_id))
+      .filter(util.emptyness);
   }
 
   get totalValue() {
