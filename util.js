@@ -78,7 +78,7 @@ module.exports.getSetId = (id) => {
 
 module.exports.parseId = (id) => {
   this.checkId();
-  parts = id.split('-');
+  parts = id.toUpperCase().split('-');
   if (parts.length === 1) return id;
   if (parts[1].length <= 3) return id;
   parts[1] = '-EN' + parts[1].substring(2);
