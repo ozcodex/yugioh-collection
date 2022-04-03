@@ -57,6 +57,11 @@ try {
       break;
     case '-a':
       util.checkArgs(args, 1);
+      db.addCard(args[1]);
+      console.info('Done!');
+      break;
+    case '-A':
+      util.checkArgs(args, 1);
       db.importCards(args[1]);
       console.info('Done!');
       break;
@@ -114,7 +119,10 @@ Yugioh Collection Manager
     stricts is a optional boolean and indicates if strict
     search should be used.
 
-  -a filename
+  -a id
+    adds the given card to the database.
+
+  -A filename
     adds the ids indicated in the filename to database
 
   -e

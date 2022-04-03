@@ -157,6 +157,7 @@ module.exports = class DB {
   /* Other methods*/
 
   addCard(id) {
+    util.checkId(id);
     if (this.getCard(id)) {
       this.increaseCardAmount(id);
       return;
