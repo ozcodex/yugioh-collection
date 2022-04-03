@@ -104,12 +104,12 @@ module.exports = class DB {
       card.card_sets?.filter((set) => set.set_code === parsed_id)[0] || {};
     return {
       id,
+      number: card.id,
       ...util.getProps(card),
       rarity: set.set_rarity,
       set_name: set.set_name,
       price: set.set_price,
       price_low: util.lowestPrice(card.card_prices[0]),
-      image: card.card_images[0].id,
     };
   }
 

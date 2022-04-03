@@ -122,6 +122,7 @@ module.exports.defaultCard = (id) => {
   return {
     id,
     name: '-',
+    number: '0',
     type: undefined,
     desc: undefined,
     atk: undefined,
@@ -136,6 +137,5 @@ module.exports.defaultCard = (id) => {
     lang: this.getLang(id),
     price: 0,
     price_low: 0,
-    image: '0',
   };
 };
