@@ -23,6 +23,8 @@ features to implement:
 - add documentation
 - increase verbose
 - graphical interface
+- show inported cards info after import
+- add single card to collection
 
 # source of data
 the json files `all_cards.json` and `all_sets.json` are obtained

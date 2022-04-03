@@ -99,9 +99,8 @@ module.exports = class DB {
     const card = this.all_cards.filter((card) =>
       card.card_sets?.some((set) => set.set_code === parsed_id)
     )[0];
-    if (!card) return null;
     const set =
-      card.card_sets.filter((set) => set.set_code === parsed_id)[0] || {};
+      card.card_sets?.filter((set) => set.set_code === parsed_id)[0] || {};
     return {
       id,
       ...util.getProps(card),
