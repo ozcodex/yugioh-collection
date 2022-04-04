@@ -1,4 +1,5 @@
 const util = require('./util');
+const deck = require('./deck');
 const DB = require('./db');
 
 const db = new DB('main.db');
@@ -74,6 +75,12 @@ try {
       db.importCards(args[1]);
       console.info('Done!');
       break;
+    case '-b':
+      util.checkArgs(args, 1);
+      info = deck.readFile(args[1]);
+      info = deck.completitude(info,db)
+      console.info(info);
+      break;
     case '-e':
       util.checkArgs(args, 1);
       db.exportCards(args[1]);
@@ -108,6 +115,15 @@ try {
       console.info(`
 Yugioh Collection Manager
 
+  -a id
+    adds the given card to the database.
+
+  -A filename
+    adds the ids indicated in the filename to database
+
+  -b filename
+    read a .ydk deck file and 
+
   -l 
     list all cards in collection
 
@@ -130,12 +146,6 @@ Yugioh Collection Manager
     search the cards containing the value in the property,
     stricts is a optional boolean and indicates if strict
     search should be used.
-
-  -a id
-    adds the given card to the database.
-
-  -A filename
-    adds the ids indicated in the filename to database
 
   -e
     exports all the cards ids to cards.txt file
