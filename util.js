@@ -28,7 +28,16 @@ module.exports.cardMask = (card) => {
 };
 
 module.exports.deckMask = (deck) => {
-  return `  ${deck.completitude.main}/${deck.completitude.extra}/${deck.completitude.side}\t ${deck.name}`;
+  return (
+    `  ${deck.completitude.main.toFixed(2)}%` +
+    (deck.completitude.extra == -1
+      ? '/----'
+      : `/${deck.completitude.extra.toFixed(2)}%`) +
+    (deck.completitude.side == -1
+      ? '/----'
+      : `/${deck.completitude.side.toFixed(2)}%`) +
+    `\t ${deck.name}`
+  );
 };
 
 module.exports.setMask = (set) => {

@@ -77,9 +77,8 @@ try {
       break;
     case '-b':
       util.checkArgs(args, 1);
-      info = deck.readFile(args[1]);
-      info = deck.completitude(info, db);
-      console.info(info);
+      info = deck.readFile(args[1], db);
+      console.info(util.objectMask(info));
       break;
     case '-B':
       util.checkArgs(args, 1);
@@ -126,6 +125,9 @@ Yugioh Collection Manager
 
   -A filename
     adds the ids indicated in the filename to database
+
+  -b filename
+    read a .ydk deck file and show it's details
 
   -B folder
     read all .ydk deck files in a folder and show it's completitude
