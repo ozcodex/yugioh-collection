@@ -40,6 +40,15 @@ try {
         console.error('Card not found');
       }
       break;
+    case '-C':
+      util.checkArgs(args, 0);
+      card = db.getCard(util.randomItem(db.cardIds));
+      if (card) {
+        console.info(util.objectMask(card));
+      } else {
+        console.error('Card not found');
+      }
+      break;
     case '-t':
       util.checkArgs(args, 1);
       set = db.getSetInfo(args[1]);
@@ -110,6 +119,9 @@ Yugioh Collection Manager
   
   -c id
     shows detailed information about a card
+  
+  -C
+    shows detailed information about a random card
 
   -t id
     shows detailed information about a set

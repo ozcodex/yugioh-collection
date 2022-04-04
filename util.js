@@ -85,6 +85,10 @@ module.exports.parseId = (id) => {
   return parts.join('');
 };
 
+module.exports.randomItem = (items) => {
+  return items[Math.floor(Math.random()*items.length)];
+};
+
 module.exports.lowestPrice = (prices) => {
   return Math.min(...Object.values(prices));
 };
