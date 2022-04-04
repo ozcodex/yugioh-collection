@@ -27,6 +27,10 @@ module.exports.cardMask = (card) => {
   return `  ${card.id}\t (x${card.amount}) ${card.name} $${card.price}`;
 };
 
+module.exports.deckMask = (deck) => {
+  return `  ${deck.completitude.main}/${deck.completitude.extra}/${deck.completitude.side}\t ${deck.name}`;
+};
+
 module.exports.setMask = (set) => {
   return `  ${set.id}\t${set.owned}/${set.num_cards}\t ${set.name}`;
 };
@@ -70,7 +74,6 @@ module.exports.getLang = (id) => {
   else return parts[1].substr(0, 2);
 };
 
-
 module.exports.getSetId = (id) => {
   this.checkId();
   return id.split('-')[0];
@@ -86,7 +89,7 @@ module.exports.parseId = (id) => {
 };
 
 module.exports.randomItem = (items) => {
-  return items[Math.floor(Math.random()*items.length)];
+  return items[Math.floor(Math.random() * items.length)];
 };
 
 module.exports.lowestPrice = (prices) => {

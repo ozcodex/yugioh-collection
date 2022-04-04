@@ -11,7 +11,7 @@ try {
     case '-l':
       util.checkArgs(args, 0);
       db.cards
-        .sort(util.sortBy('price',true))
+        .sort(util.sortBy('price', true))
         .forEach((card) => console.info(util.cardMask(card)));
       break;
     case '-L':
@@ -78,8 +78,14 @@ try {
     case '-b':
       util.checkArgs(args, 1);
       info = deck.readFile(args[1]);
-      info = deck.completitude(info,db)
+      info = deck.completitude(info, db);
       console.info(info);
+      break;
+    case '-B':
+      util.checkArgs(args, 1);
+      deck
+        .readFolder(args[1], db)
+        .forEach((info) => console.info(util.deckMask(info)));
       break;
     case '-e':
       util.checkArgs(args, 1);
@@ -121,8 +127,8 @@ Yugioh Collection Manager
   -A filename
     adds the ids indicated in the filename to database
 
-  -b filename
-    read a .ydk deck file and 
+  -B folder
+    read all .ydk deck files in a folder and show it's completitude
 
   -l 
     list all cards in collection

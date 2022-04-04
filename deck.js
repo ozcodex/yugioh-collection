@@ -1,7 +1,28 @@
 const fs = require('fs');
 const util = require('./util');
 
-module.exports.readFile = (filename) => {
+function completitude(deck, db) {
+  //TODO: check the amount of cards
+  let result = {};
+  Object.keys(deck).forEach((key) => {
+    if (deck[key].length > 0) {
+      result[key] =
+        (
+          (100 *
+            deck[key]
+              .map((number) => db.getCardsIdsBy('number', number).length > 0)
+              .reduce(util.additor)) /
+          deck[key].length
+        ).toFixed(2) + '%';
+    } else {
+      result[key] = '--';
+    }
+  });
+  return result;
+};
+
+
+function readFile(filename) {
   if (!fs.existsSync(filename)) throw new Error('Wrong filename!');
   let current = '';
   const deck = { main: [], extra: [], side: [] };
@@ -30,22 +51,10 @@ module.exports.readFile = (filename) => {
   return deck;
 };
 
-module.exports.completitude = (deck, db) => {
-  //TODO: check the amount of cards
-  let result = {};
-  Object.keys(deck).forEach((key) => {
-    if (deck[key].length > 0){
-      result[key] =
-        (
-          (100 *
-            deck[key]
-              .map((number) => db.getCardsIdsBy('number', number).length > 0)
-              .reduce(util.additor)) /
-          deck[key].length
-        ).toFixed(2) + '%';
-    } else {
-      result[key] = '100%'
-    }
+module.exports.readFolder = (folder,db) => {
+  return fs.readdirSync(folder).map((name) => {
+    deck = readFile(`${folder}/${name}`)
+    return { name, deck,completitude: completitude(deck,db) };
   });
-  return result;
 };
+
