@@ -3,6 +3,21 @@ A simple script to keep track of my yugioh card collection
 
 using ygo prices and pro decks apis
 
+features:
+- posix-like argument interface, run with '-h' to see all available arguments
+- allows to add and delete cards
+- list all cards
+- search cards by different properties
+- fetch set information
+- read ydk decks
+- check deck percent completitude
+- get cards prices
+- get the percent of unique cards that is in collection, from all the existent cards
+- have a local database of all cards and update it
+- export all ids to a txt file
+- load database from txt file
+- pick a random card from collection
+
 bugs to solve:
 - printing issue
 - list dont updates when add card
