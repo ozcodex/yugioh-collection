@@ -40,6 +40,7 @@ features to implement:
 - graphical interface
 - show inported cards info after import
 - add single card to collection
+- support named arguments with -- and multiple arguments
 
 # source of data
 the json files `all_cards.json` and `all_sets.json` are obtained
